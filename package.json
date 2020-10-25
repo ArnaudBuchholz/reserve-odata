@@ -1,0 +1,27 @@
+{
+  "name": "reserve-odata",
+  "version": "0.0.1",
+  "description": "ODATA handler for REserve",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArnaudBuchholz/reserve-odata.git"
+  },
+  "keywords": [
+    "REserve",
+    "odata"
+  ],
+  "author": "Arnaud Buchholz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ArnaudBuchholz/reserve-odata/issues"
+  },
+  "homepage": "https://github.com/ArnaudBuchholz/reserve-odata#readme",
+  "dependencies": {
+    "gpf-js": "^1.0.0",
+    "reserve": "^1.9.2"
+  }
+}

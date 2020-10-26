@@ -23,5 +23,38 @@
   "dependencies": {
     "gpf-js": "^1.0.0",
     "reserve": "^1.9.2"
+  },
+  "standard": {
+    "globals": [
+      "process",
+      "describe",
+      "it",
+      "before",
+      "beforeEach",
+      "after"
+    ]
+  },
+  "mocha": {
+    "diff": false,
+    "spec": [
+      "tests/mocha/*.test.js",
+      "tests/mocha/**/*.test.js"
+    ],
+    "require": []
+  },
+  "nyc": {
+    "all": true,
+    "cache": false,
+    "check-coverage": true,
+    "exclude": [],
+    "branches": 100,
+    "lines": 100,
+    "functions": 100,
+    "statements": 100
+  },
+  "devDependencies": {
+    "mocha": "^8.2.0",
+    "nyc": "^15.1.0",
+    "standard": "^15.0.0"
   }
 }

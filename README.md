@@ -1,5 +1,5 @@
 # REserve/**ODATA**
-ODATA handler for [REserve](https://npmjs.com/package/reserve).
+Simple [ODATA v2](https://www.odata.org/documentation/odata-version-2-0/) handler for [REserve](https://npmjs.com/package/reserve).
 
 [![Travis-CI](https://travis-ci.org/ArnaudBuchholz/reserve-odata.svg?branch=master)](https://travis-ci.org/ArnaudBuchholz/reserve-odata#)
 [![Coverage Status](https://coveralls.io/repos/github/ArnaudBuchholz/reserve-odata/badge.svg?branch=master)](https://coveralls.io/github/ArnaudBuchholz/reserve-odata?branch=master)
@@ -22,7 +22,8 @@ ODATA handler for [REserve](https://npmjs.com/package/reserve).
   },
   "mappings": [{
     "match": "\\/api\\/odata\\/(.*)",
-    "odata": "$1"
+    "odata": "$1",
+    "data-provider-factory": "./dpf.js"
   }]
 }
 ```
@@ -31,6 +32,72 @@ ODATA handler for [REserve](https://npmjs.com/package/reserve).
 
 | Option | Default Value | Explanation |
 |---|---|---|
-| `test` | `'test'` | test |
+| `data-provider-factory` | function or string | Function that returns the IDataProvider interface |
+
+## IDataProvider interface
+
+### `async getEntityClasses () : []`
+
+### `async getEntity (entitySetName, keys) : object`
+
+Get an entity using its key
+
+### `async getEntities (entitySetName, filters) : []`
+
+filters might include parent entity for navigation properties
+$parent
+$navigationProperty
+First level properties are AND gpf.typedef.filterItem
+
+$select, $sort, $top & $skip are handled internally
+
+## Attributes
+
+To configure the ODATA service, one must use the [gpf.attributes.Serializable Attribute](https://arnaudbuchholz.github.io/gpf/doc/gpf.attributes.Serializable.html) as well as the following ones.
+
+### `reserve-odata/attributes/Key`
+
+Use it to flag the key properties of the entity
+
+### `reserve-odata/attributes/Sortable`
+
+Use it to flag the properties that can be sorted
+
+### `reserve-odata/attributes/Filterable`
+
+Use it to flag the properties that can be filtered
+
+### `reserve-odata/attributes/Searchable`
+
+Use it to flag the properties that can be searched
 
 ## Supported APIs
+
+### `GET $metadata`
+
+Returns the XML schema description
+
+### `GET <EntitySet>`
+
+Supports: $filter, $select, $skip, $stop, $expand
+
+### `GET <EntitySet>(<Key values>)`
+
+Supports: $select, $expand
+
+### `GET <EntitySet>(<Key values>)/<navigationProperty>`
+
+Supports: $filter, $select, $skip, $stop, $expand
+
+### `POST <EntitySet>`
+
+Creation
+
+### `PUT <EntitySet>(<Key values>)`
+
+Update
+
+### `MERGE <EntitySet>(<Key values>)`
+
+Differential update
+

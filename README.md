@@ -30,8 +30,10 @@ Simple [ODATA v2](https://www.odata.org/documentation/odata-version-2-0/) handle
 
 ## Options
 
-| Option | Default Value | Explanation |
+| Option | Type / Default Value | Explanation |
 |---|---|---|
+| `namespace` | `'ODATANS'` | Service namespace |
+| `use-sap-extension` | `false` | `true` to insert SAP specific information in the $metadata |
 | `data-provider-factory` | function or string | Function that returns the IDataProvider interface |
 
 ## IDataProvider interface

@@ -23,7 +23,7 @@ module.exports = async ({ mapping, response }) => {
   const writer = new gpf.xml.Writer()
   const promisifiedWriter = xmlContentHandler(writer)
   const output = new gpf.stream.WritableString()
-  gpf.stream.pipe(writer, output)
+  const piped = gpf.stream.pipe(writer, output)
 
   const entities = await mapping[$dataProvider].getEntityClasses()
   const serviceNamespace = mapping['service-namespace']
@@ -189,6 +189,8 @@ module.exports = async ({ mapping, response }) => {
     .endElement() // edmx:DataServices
     .endElement() // edmx:Edmx
     .endDocument()
+
+  await piped
 
   const xml = output.toString()
   response.writeHead(200, {

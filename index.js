@@ -4,16 +4,16 @@ const { $dataProvider } = require('./symbols')
 const metadata = require('./metadata')
 const handlers = {}
 
-handlers.GET = async ({ mapping, redirect, request, response }) => {
+handlers.GET = async function ({ mapping, redirect, request, response }) {
   if (redirect.startsWith('$metadata')) {
-    metadata(...arguments)
+    return metadata(...arguments)
   }
 }
 
-handlers.POST = async ({ redirect, request, response }) => {
+handlers.POST = async function ({ redirect, request, response }) {
 }
 
-handlers.DELETE = async ({ cache, redirect, response }) => {
+handlers.DELETE = async function ({ cache, redirect, response }) {
 }
 
 module.exports = {

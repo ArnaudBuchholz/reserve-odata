@@ -11,15 +11,14 @@ module.exports = function ({ request, mapping, match, redirect }) {
   }
   request = new Request(request)
   const response = new Response()
-  configuration = { handler: () => { return { handler } } }
-  let mappingReady
-  if (mapping !== null) {
-    mapping = { ...mapping }
-    mappingReady = check(configuration, mapping)
-  } else {
-    mappingReady = Promise.resolve()
+  const configuration = { handler: () => { return { handler } } }
+  if (!mapping) {
+    mapping = {
+      'data-provider-factory': require('./dataProviderFactory'),
+      'service-namespace': 'test'
+    }
   }
-  return mappingReady
+  return check(configuration, mapping)
     .then(() => handler.redirect({
       configuration,
       match,

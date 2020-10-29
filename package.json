@@ -4,7 +4,11 @@
   "description": "ODATA handler for REserve",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard && nyc mocha",
+    "lint": "standard --fix",
+    "mocha": "mocha",
+    "mocha-dbg": "node --inspect-brk node_modules/mocha/bin/_mocha",
+    "cover": "nyc mocha && nyc report --reporter=lcov"
   },
   "repository": {
     "type": "git",
@@ -40,7 +44,7 @@
       "tests/mocha/*.test.js",
       "tests/mocha/**/*.test.js"
     ],
-    "require": []
+    "_require": []
   },
   "nyc": {
     "all": true,

@@ -28,11 +28,10 @@ class Record {
 
 attribute(new Key())(Record, 'id')
 attribute(new gpf.attributes.Serializable())(Record, 'id')
-attribute(new gpf.attributes.Serializable())(Record, 'type')
 attribute(new gpf.attributes.Serializable())(Record, 'name')
 attribute(new Searchable())(Record, 'name')
 attribute(new Sortable())(Record, 'name')
-attribute(new gpf.attributes.Serializable())(Record, 'number')
+attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.integer, readOnly: false }))(Record, 'number')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.datetime, readOnly: false }))(Record, 'modified')
 attribute(new Sortable())(Record, 'modified')
 

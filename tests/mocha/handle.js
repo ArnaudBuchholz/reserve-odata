@@ -5,27 +5,32 @@ const Response = require('reserve/mock/Response')
 const { check } = require('reserve/mapping')
 const handler = require('../../index')
 
-module.exports = function ({ request, mapping, match, redirect }) {
+const Record = require('./Record')
+
+module.exports = function ({ request }) {
   if (typeof request === 'string') {
     request = { method: 'GET', url: request }
   }
   request = new Request(request)
   const response = new Response()
   const configuration = { handler: () => { return { handler } } }
-  if (!mapping) {
-    mapping = {
-      'data-provider-factory': require('./dataProviderFactory'),
-      'service-namespace': 'test'
+  const dataProvider = {
+    async getEntityClasses () {
+      return [Record]
     }
+  }
+  const mapping = {
+    'data-provider-factory': () => dataProvider,
+    'service-namespace': 'test'
   }
   return check(configuration, mapping)
     .then(() => handler.redirect({
       configuration,
-      match,
+      match: [],
       request,
       response,
       mapping,
-      redirect: redirect || request.url
+      redirect: request.url
     }))
     .then(() => response)
 }

@@ -1,6 +1,6 @@
 'use strict'
 
-const { $dataProvider } = require('./symbols')
+const { $dpc } = require('./symbols')
 const Key = require('./attributes/Key')
 const Filterable = require('./attributes/Filterable')
 const Sortable = require('./attributes/Sortable')
@@ -25,7 +25,7 @@ module.exports = async ({ mapping, response }) => {
   const output = new gpf.stream.WritableString()
   const piped = gpf.stream.pipe(writer, output)
 
-  const entities = await mapping[$dataProvider].getEntityClasses()
+  const entities = mapping[$dpc]
   const serviceNamespace = mapping['service-namespace']
 
   await promisifiedWriter

@@ -34,17 +34,23 @@ Simple [ODATA v2](https://www.odata.org/documentation/odata-version-2-0/) handle
 |---|---|---|
 | `service-namespace` | `'ODATANS'` | Service namespace |
 | `use-sap-extension` | `false` | `true` to insert SAP specific information in the $metadata |
-| `data-provider-factory` | function or string | Function that returns the IDataProvider interface |
+| `data-provider-classes` | function or string | Asynchronous function that returns the data provider classes |
 
-## IDataProvider interface
+## Data Provider Class
 
-### `async getEntityClasses () : []`
+Each EntityClass must be decorated with specific attributes to control the way the entity is serialized.
 
-### `async getEntity (entitySetName, keys) : object`
+It must also offer the following static members :
+
+### `async EntityClass.read (keys) : object`
+
+Might be changed thanks to a class attribute
 
 Get an entity using its key
 
-### `async getEntities (entitySetName, filters) : []`
+### `async EntityClass.list (filters, context) : []`
+
+Might be changed thanks to a class attribute
 
 filters might include parent entity for navigation properties
 $parent
@@ -52,6 +58,22 @@ $navigationProperty
 First level properties are AND gpf.typedef.filterItem
 
 $select, $sort, $top & $skip are handled internally
+
+Context might be filled when relative to a navigation property :
+```javascript
+{
+  "navigationProperty": "toExample",
+  "parent": {}
+}
+```
+
+### `async EntityClass.create (properties) : object`
+
+Used for create
+
+### Update & Delete
+
+Methods should be flagged with a specific attribute (if the attribute does not exist, then methods are forbidden)
 
 ## Attributes
 
@@ -72,6 +94,25 @@ Use it to flag the properties that can be filtered
 ### `reserve-odata/attributes/Searchable`
 
 Use it to flag the properties that can be searched
+
+### `reserve-odata/attributes/EntitySetName`
+
+TBD
+
+### `reserve-odata/attributes/Creatable`
+
+Class attribute
+TBD option to introduce the static method name
+
+### `reserve-odata/attributes/Deletable`
+
+Class attribute
+TBD option to introduce the instance method name
+
+### `reserve-odata/attributes/Updatable`
+
+Class attribute
+TBD option to introduce the instance method name
 
 ## Supported APIs
 

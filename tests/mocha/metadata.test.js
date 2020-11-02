@@ -3,6 +3,7 @@
 const assert = require('assert')
 const { parseStringPromise } = require('xml2js')
 const handle = require('./handle.js')
+const Tag = require('./Tag')
 
 const getLocalName = name => {
   if (name.includes(':')) {
@@ -22,7 +23,7 @@ const parse = xmlString => parseStringPromise(xmlString, {
 const findByName = (array, name) => array.filter(node => node.$.Name.value === name)[0]
 
 describe('metadata', () => {
-  it('provides valid schema description', () => handle({ request: '$metadata' })
+  it('provides valid schema description (only Tag)', () => handle({ request: '$metadata', classes: [Tag] })
     .then(response => {
       assert.strictEqual(response.statusCode, 200)
       return parse(response.toString())
@@ -48,30 +49,29 @@ describe('metadata', () => {
       assert.strictEqual(schema.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
       assert.strictEqual(schema.$.Namespace.value, 'test')
 
-      const recordEntityType = findByName(schema.EntityType, 'Record')
-      assert.ok(recordEntityType)
-      assert.strictEqual(recordEntityType.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+      const tagEntityType = findByName(schema.EntityType, 'Tag')
+      assert.ok(tagEntityType)
+      assert.strictEqual(tagEntityType.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
 
-      const recordKey = recordEntityType.Key[0]
-      assert.ok(recordKey)
-      assert.strictEqual(recordEntityType.Key.length, 1)
-      assert.strictEqual(recordKey.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+      const tagKey = tagEntityType.Key[0]
+      assert.ok(tagKey)
+      assert.strictEqual(tagEntityType.Key.length, 1)
+      assert.strictEqual(tagKey.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
 
-      const recordKeyProperty = recordKey.PropertyRef[0]
+      const recordKeyProperty = tagKey.PropertyRef[0]
       assert.ok(recordKeyProperty)
-      assert.strictEqual(recordKey.PropertyRef.length, 1)
+      assert.strictEqual(tagKey.PropertyRef.length, 1)
       assert.strictEqual(recordKeyProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
-      assert.strictEqual(recordKeyProperty.$.Name.value, 'id')
+      assert.strictEqual(recordKeyProperty.$.Name.value, 'name')
 
-      assert.strictEqual(recordEntityType.Property.length, 4)
       const expectedProperties = {
-        id: { type: 'Edm.String' },
         name: { type: 'Edm.String' },
-        number: { type: 'Edm.Int64' },
+        count: { type: 'Edm.Int64' },
         modified: { type: 'Edm.DateTime' }
       }
+      assert.strictEqual(tagEntityType.Property.length, Object.keys(expectedProperties).length)
       Object.keys(expectedProperties).forEach(propertyName => {
-        const recordProperty = findByName(recordEntityType.Property, propertyName)
+        const recordProperty = findByName(tagEntityType.Property, propertyName)
         assert.strictEqual(recordProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
         assert.strictEqual(recordProperty.$.Type.value, expectedProperties[propertyName].type)
       })
@@ -81,10 +81,10 @@ describe('metadata', () => {
       assert.strictEqual(schema.EntityContainer.length, 1)
       assert.strictEqual(entityContainer.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
 
-      const recordEntitySet = findByName(entityContainer.EntitySet, 'RecordSet')
+      const recordEntitySet = findByName(entityContainer.EntitySet, 'TagSet')
       assert.ok(recordEntitySet)
       assert.strictEqual(recordEntitySet.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
-      assert.strictEqual(recordEntitySet.$.EntityType.value, 'test.Record')
+      assert.strictEqual(recordEntitySet.$.EntityType.value, 'test.Tag')
     })
   )
 })

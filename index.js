@@ -1,6 +1,6 @@
 'use strict'
 
-const { $dataProvider } = require('./symbols')
+const { $dpc } = require('./symbols')
 const metadata = require('./metadata')
 const handlers = {}
 
@@ -21,8 +21,8 @@ module.exports = {
   },
   method: Object.keys(handlers),
   async redirect ({ mapping, redirect, request, response }) {
-    if (!mapping[$dataProvider]) {
-      mapping[$dataProvider] = mapping['data-provider-factory']()
+    if (!mapping[$dpc]) {
+      mapping[$dpc] = await mapping['data-provider-classes']()
       // check interface
     }
     return handlers[request.method](...arguments)

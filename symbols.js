@@ -3,5 +3,5 @@
 const ns = 'REserve-odata@'
 
 module.exports = {
-  $dataProvider: Symbol(`${ns}dataProvider`)
+  $dpc: Symbol(`${ns}dataProviderClasses`)
 }

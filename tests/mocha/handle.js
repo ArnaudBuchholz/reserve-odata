@@ -5,9 +5,10 @@ const Response = require('reserve/mock/Response')
 const { check } = require('reserve/mapping')
 const handler = require('../../index')
 
+const Tag = require('./Tag')
 const Record = require('./Record')
 
-module.exports = function ({ request, classes = [Record] }) {
+module.exports = function ({ request, classes = [Tag, Record], useSapExtension = true }) {
   if (typeof request === 'string') {
     request = { method: 'GET', url: request }
   }

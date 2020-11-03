@@ -23,7 +23,7 @@ const parse = xmlString => parseStringPromise(xmlString, {
 const findByName = (array, name) => array.filter(node => node.$.Name.value === name)[0]
 
 describe('metadata', () => {
-  it('provides valid schema description (only Tag)', () => handle({ request: '$metadata', classes: [Tag] })
+  it('describes ODATA schema (Tag only)', () => handle({ request: '$metadata', classes: [Tag], useSapExtension: false })
     .then(response => {
       assert.strictEqual(response.statusCode, 200)
       return parse(response.toString())
@@ -58,11 +58,11 @@ describe('metadata', () => {
       assert.strictEqual(tagEntityType.Key.length, 1)
       assert.strictEqual(tagKey.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
 
-      const recordKeyProperty = tagKey.PropertyRef[0]
-      assert.ok(recordKeyProperty)
+      const tagKeyProperty = tagKey.PropertyRef[0]
+      assert.ok(tagKeyProperty)
       assert.strictEqual(tagKey.PropertyRef.length, 1)
-      assert.strictEqual(recordKeyProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
-      assert.strictEqual(recordKeyProperty.$.Name.value, 'name')
+      assert.strictEqual(tagKeyProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+      assert.strictEqual(tagKeyProperty.$.Name.value, 'name')
 
       const expectedProperties = {
         name: { type: 'Edm.String' },
@@ -81,10 +81,61 @@ describe('metadata', () => {
       assert.strictEqual(schema.EntityContainer.length, 1)
       assert.strictEqual(entityContainer.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
 
-      const recordEntitySet = findByName(entityContainer.EntitySet, 'TagSet')
+      const tagEntitySet = findByName(entityContainer.EntitySet, 'TagSet')
+      assert.ok(tagEntitySet)
+      assert.strictEqual(tagEntitySet.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+      assert.strictEqual(tagEntitySet.$.EntityType.value, 'test.Tag')
+    })
+  )
+
+  it('describes ODATA schema (Tag & Record)', () => handle({ request: '$metadata' })
+    .then(response => {
+      assert.strictEqual(response.statusCode, 200)
+      console.log(response.toString())
+      return parse(response.toString())
+    })
+    .then(xml => {
+      // console.log(JSON.stringify(xml))
+      const edmx = xml.Edmx
+      const dataServices = edmx.DataServices[0]
+      const schema = dataServices.Schema[0]
+
+      const recordEntityType = findByName(schema.EntityType, 'Record')
+      assert.ok(recordEntityType)
+      assert.strictEqual(recordEntityType.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+
+      const recordKey = recordEntityType.Key[0]
+      assert.ok(recordKey)
+      assert.strictEqual(recordKey.Key.length, 1)
+      assert.strictEqual(recordKey.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+
+      const recordKeyProperty = recordKey.PropertyRef[0]
+      assert.ok(recordKeyProperty)
+      assert.strictEqual(recordKeyProperty.PropertyRef.length, 1)
+      assert.strictEqual(recordKeyProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+      assert.strictEqual(recordKeyProperty.$.Name.value, 'name')
+
+      const expectedProperties = {
+        name: { type: 'Edm.String' },
+        count: { type: 'Edm.Int64' },
+        modified: { type: 'Edm.DateTime' }
+      }
+      assert.strictEqual(recordEntityType.Property.length, Object.keys(expectedProperties).length)
+      Object.keys(expectedProperties).forEach(propertyName => {
+        const recordProperty = findByName(recordEntityType.Property, propertyName)
+        assert.strictEqual(recordProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+        assert.strictEqual(recordProperty.$.Type.value, expectedProperties[propertyName].type)
+      })
+
+      const entityContainer = schema.EntityContainer[0]
+      assert.ok(entityContainer)
+      assert.strictEqual(schema.EntityContainer.length, 1)
+      assert.strictEqual(entityContainer.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+
+      const recordEntitySet = findByName(entityContainer.EntitySet, 'RecordSet')
       assert.ok(recordEntitySet)
       assert.strictEqual(recordEntitySet.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
-      assert.strictEqual(recordEntitySet.$.EntityType.value, 'test.Tag')
+      assert.strictEqual(recordEntitySet.$.EntityType.value, 'test.Record')
     })
   )
 })

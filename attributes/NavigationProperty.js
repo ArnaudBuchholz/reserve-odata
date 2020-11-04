@@ -31,23 +31,24 @@ class NavigationProperty extends gpf.attributes.Attribute {
   }
 
   get name () {
-    return `to${this._to.name}`
+    return this._name
   }
 
   get relationshipName () {
-    return `${this.from.name}To${this.to.name}`
+    return `${this.from.name}_${this.name}`
   }
 
   get fromRoleName () {
-    return `FromRole_${this.from.name}To${this.to.name}`
+    return `From_${this.relationshipName}`
   }
 
   get toRoleName () {
-    return `ToRole_${this.from.name}To${this.to.name}`
+    return `To_${this.relationshipName}`
   }
 
-  constructor (Entity, multiplicity = '*') {
+  constructor (name, Entity, multiplicity = '*') {
     super()
+    this._name = name
     this._to = Entity
     this._multiplicity = multiplicity
     this._principal = ''

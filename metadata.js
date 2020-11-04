@@ -117,7 +117,9 @@ module.exports = async ({ mapping, response }) => {
           Role: navigationProperty.toRoleName
         })
         .endElement() // End
-        .startElement('ReferentialConstraint')
+
+      if (navigationProperty.principal) {
+        await promisifiedWriter.startElement('ReferentialConstraint')
         .startElement('Principal', {
           Role: navigationProperty.fromRoleName
         })
@@ -135,7 +137,9 @@ module.exports = async ({ mapping, response }) => {
         .endElement() // PropertyRef
         .endElement() // Dependent
         .endElement() // ReferentialConstraint
-        .endElement() // Association
+      }
+
+      await promisifiedWriter.endElement() // Association
     }
   }
 

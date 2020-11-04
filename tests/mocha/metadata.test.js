@@ -29,7 +29,6 @@ describe('metadata', () => {
       return parse(response.toString())
     })
     .then(xml => {
-      // console.log(JSON.stringify(xml))
       const edmx = xml.Edmx
       assert.ok(edmx)
       assert.strictEqual(edmx.$ns.uri, 'http://schemas.microsoft.com/ado/2007/06/edmx')
@@ -91,7 +90,7 @@ describe('metadata', () => {
   it('describes ODATA schema (Tag & Record)', () => handle({ request: '$metadata' })
     .then(response => {
       assert.strictEqual(response.statusCode, 200)
-      console.log(response.toString())
+      // console.log(response.toString())
       return parse(response.toString())
     })
     .then(xml => {
@@ -106,18 +105,20 @@ describe('metadata', () => {
 
       const recordKey = recordEntityType.Key[0]
       assert.ok(recordKey)
-      assert.strictEqual(recordKey.Key.length, 1)
+      assert.strictEqual(recordEntityType.Key.length, 1)
       assert.strictEqual(recordKey.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
 
       const recordKeyProperty = recordKey.PropertyRef[0]
       assert.ok(recordKeyProperty)
-      assert.strictEqual(recordKeyProperty.PropertyRef.length, 1)
+      assert.strictEqual(recordKey.PropertyRef.length, 1)
       assert.strictEqual(recordKeyProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
-      assert.strictEqual(recordKeyProperty.$.Name.value, 'name')
+      assert.strictEqual(recordKeyProperty.$.Name.value, 'id')
 
       const expectedProperties = {
+        id: { type: 'Edm.String' },
+        parentId: { type: 'Edm.String' },
         name: { type: 'Edm.String' },
-        count: { type: 'Edm.Int64' },
+        number: { type: 'Edm.Int64' },
         modified: { type: 'Edm.DateTime' }
       }
       assert.strictEqual(recordEntityType.Property.length, Object.keys(expectedProperties).length)

@@ -120,23 +120,23 @@ module.exports = async ({ mapping, response }) => {
 
       if (navigationProperty.principal) {
         await promisifiedWriter.startElement('ReferentialConstraint')
-        .startElement('Principal', {
-          Role: navigationProperty.fromRoleName
-        })
-        .startElement('PropertyRef', {
-          Name: navigationProperty.principal
-        })
-        .endElement() // PropertyRef
-        .endElement() // Principal
-        .startElement('Dependent', {
-          Role: navigationProperty.toRoleName
-        })
-        .startElement('PropertyRef', {
-          Name: navigationProperty.dependent
-        })
-        .endElement() // PropertyRef
-        .endElement() // Dependent
-        .endElement() // ReferentialConstraint
+          .startElement('Principal', {
+            Role: navigationProperty.fromRoleName
+          })
+          .startElement('PropertyRef', {
+            Name: navigationProperty.principal
+          })
+          .endElement() // PropertyRef
+          .endElement() // Principal
+          .startElement('Dependent', {
+            Role: navigationProperty.toRoleName
+          })
+          .startElement('PropertyRef', {
+            Name: navigationProperty.dependent
+          })
+          .endElement() // PropertyRef
+          .endElement() // Dependent
+          .endElement() // ReferentialConstraint
       }
 
       await promisifiedWriter.endElement() // Association

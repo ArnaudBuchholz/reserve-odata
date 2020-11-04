@@ -48,7 +48,7 @@ Might be changed thanks to a class attribute
 
 Get an entity using its key
 
-### `async EntityClass.list (filters, context) : []`
+### `async EntityClass.list (filters) : []`
 
 Might be changed thanks to a class attribute
 
@@ -58,14 +58,6 @@ $navigationProperty
 First level properties are AND gpf.typedef.filterItem
 
 $select, $sort, $top & $skip are handled internally
-
-Context might be filled when relative to a navigation property :
-```javascript
-{
-  "navigationProperty": "toExample",
-  "parent": {}
-}
-```
 
 ### `async EntityClass.create (properties) : object`
 

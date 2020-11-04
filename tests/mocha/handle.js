@@ -7,8 +7,9 @@ const handler = require('../../index')
 
 const Tag = require('./Tag')
 const Record = require('./Record')
+const AppSetting = require('./AppSetting')
 
-module.exports = function ({ request, classes = [Tag, Record], useSapExtension = true }) {
+module.exports = function ({ request, classes = [Tag, Record, AppSetting], useSapExtension = true }) {
   if (typeof request === 'string') {
     request = { method: 'GET', url: request }
   }

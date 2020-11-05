@@ -9,7 +9,12 @@ const Tag = require('./Tag')
 const Record = require('./Record')
 const AppSetting = require('./AppSetting')
 
-module.exports = function ({ request, classes = [Tag, Record, AppSetting], useSapExtension = true }) {
+module.exports = function ({
+  request,
+  classes = [Tag, Record, AppSetting],
+  serviceNamespace = 'test',
+  useSapExtension = true
+}) {
   if (typeof request === 'string') {
     request = { method: 'GET', url: request }
   }
@@ -18,7 +23,8 @@ module.exports = function ({ request, classes = [Tag, Record, AppSetting], useSa
   const configuration = { handler: () => { return { handler } } }
   const mapping = {
     'data-provider-classes': () => classes,
-    'service-namespace': 'test'
+    'service-namespace': serviceNamespace,
+    'use-sap-extension': useSapExtension
   }
   return check(configuration, mapping)
     .then(() => handler.redirect({

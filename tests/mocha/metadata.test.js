@@ -49,11 +49,18 @@ describe('metadata', () => {
     assert.strictEqual(entityContainer.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
   }
 
+  function checkEntitiesCount (xml, count) {
+    const schema = xml.Edmx.DataServices[0].Schema[0]
+    assert.strictEqual(schema.EntityType.length, count)
+    const entityContainer = schema.EntityContainer[0]
+    assert.strictEqual(entityContainer.EntitySet.length, count)
+  }
+
   function checkEntity ({
     xml,
     name,
     nameSet = `${name}Set`,
-    properties = {},
+    properties,
     namespace = 'test'
   }) {
     const schema = xml.Edmx.DataServices[0].Schema[0]
@@ -62,11 +69,10 @@ describe('metadata', () => {
     assert.ok(entityType)
     assert.strictEqual(entityType.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
 
-    const keys = entityType.Key.reduce((array, key) => {
-      assert.strictEqual(key.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
-      const keyProperty = key.PropertyRef[0]
-      assert.ok(keyProperty)
-      assert.strictEqual(key.PropertyRef.length, 1)
+    const entityTypeKey = entityType.Key[0]
+    assert.strictEqual(entityType.Key.length, 1)
+    assert.strictEqual(entityTypeKey.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+    const keys = entityTypeKey.PropertyRef.reduce((array, keyProperty) => {
       assert.strictEqual(keyProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
       const keyPropertyName = keyProperty.$.Name.value
       assert.ok(!array.includes(keyPropertyName))
@@ -82,6 +88,7 @@ describe('metadata', () => {
       assert.strictEqual(recordProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
       assert.strictEqual(recordProperty.$.Type.value, type)
       if (key) {
+        assert.strictEqual(recordProperty.$.Nullable.value, 'false')
         ++keyCount
         assert.ok(keys.includes(propertyName))
       }
@@ -104,10 +111,13 @@ describe('metadata', () => {
   })
     .then(response => {
       assert.strictEqual(response.statusCode, 200)
+      // console.log(response.toString())
       return parse(response.toString())
     })
     .then(xml => {
+      // console.log(JSON.stringify(xml))
       checkStructure(xml, 'TAG_ONLY')
+      checkEntitiesCount(xml, 1)
       checkEntity({
         xml,
         name: 'Tag',
@@ -130,6 +140,7 @@ describe('metadata', () => {
     .then(xml => {
       // console.log(JSON.stringify(xml))
       checkStructure(xml)
+      checkEntitiesCount(xml, 3)
       checkEntity({
         xml,
         name: 'Tag',
@@ -148,6 +159,16 @@ describe('metadata', () => {
           name: { type: 'Edm.String' },
           number: { type: 'Edm.Int64' },
           modified: { type: 'Edm.DateTime' }
+        }
+      })
+      checkEntity({
+        xml,
+        name: 'AppSetting',
+        properties: {
+          application: { type: 'Edm.String', key: true },
+          version: { type: 'Edm.Int64', key: true },
+          setting: { type: 'Edm.String', key: true },
+          value: { type: 'Edm.String' }
         }
       })
     })

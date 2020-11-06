@@ -16,20 +16,6 @@ class NavigationProperty extends gpf.attributes.Attribute {
     return this._multiplicity
   }
 
-  get principal () {
-    return this._principal
-  }
-
-  get dependent () {
-    return this._dependent
-  }
-
-  on (mapping) {
-    this._principal = Object.keys(mapping)[0]
-    this._dependent = mapping[this._principal]
-    return this
-  }
-
   get name () {
     return this._name
   }
@@ -46,13 +32,11 @@ class NavigationProperty extends gpf.attributes.Attribute {
     return `To_${this.relationshipName}`
   }
 
-  constructor (name, Entity, multiplicity = '*') {
+  constructor (name, Entity, multiplicity) {
     super()
     this._name = name
     this._to = Entity
     this._multiplicity = multiplicity
-    this._principal = ''
-    this._dependent = ''
   }
 }
 

@@ -50,8 +50,8 @@ module.exports = async ({ mapping, response }) => {
 
     const serialProps = gpf.serial.get(EntityClass)
 
-    const keys = gpf.attributes.get(EntityClass, Key)
-    for await (const member of Object.keys(keys)) {
+    const keys = Object.keys(gpf.attributes.get(EntityClass, Key))
+    for await (const member of keys) {
       await promisifiedWriter
         .startElement('PropertyRef', { Name: serialProps[member].name })
         .endElement() // PropertyRef
@@ -64,7 +64,7 @@ module.exports = async ({ mapping, response }) => {
       let attributes = {
         Name: serial.name,
         Type: TYPES_MAPPING[serial.type],
-        Nullable: !serial.required
+        Nullable: !serial.required && !keys.includes(member)
       }
       if (mapping['use-sap-extension']) {
         const sortable = gpf.attributes.get(EntityClass, Sortable)
@@ -117,27 +117,6 @@ module.exports = async ({ mapping, response }) => {
           Role: navigationProperty.toRoleName
         })
         .endElement() // End
-
-      if (navigationProperty.principal) {
-        await promisifiedWriter.startElement('ReferentialConstraint')
-          .startElement('Principal', {
-            Role: navigationProperty.fromRoleName
-          })
-          .startElement('PropertyRef', {
-            Name: navigationProperty.principal
-          })
-          .endElement() // PropertyRef
-          .endElement() // Principal
-          .startElement('Dependent', {
-            Role: navigationProperty.toRoleName
-          })
-          .startElement('PropertyRef', {
-            Name: navigationProperty.dependent
-          })
-          .endElement() // PropertyRef
-          .endElement() // Dependent
-          .endElement() // ReferentialConstraint
-      }
 
       await promisifiedWriter.endElement() // Association
     }

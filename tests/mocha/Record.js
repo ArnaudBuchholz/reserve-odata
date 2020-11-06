@@ -50,8 +50,8 @@ attribute(new Sortable())(Record, 'name')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.integer, readOnly: false }))(Record, 'number')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.datetime, readOnly: false }))(Record, 'modified')
 attribute(new Sortable())(Record, 'modified')
-attribute(new NavigationProperty('children', Record, '*').on({ id: 'parentId' }))(Record, 'getChildren')
-attribute(new NavigationProperty('parent', Record, 1).on({ parentId: 'id' }))(Record, 'getParent')
+attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren')
+attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
 attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
 
 module.exports = Record

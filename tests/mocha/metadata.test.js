@@ -61,6 +61,7 @@ describe('metadata', () => {
     name,
     nameSet = `${name}Set`,
     properties,
+    navigationProperties = {},
     namespace = 'test'
   }) {
     const schema = xml.Edmx.DataServices[0].Schema[0]
@@ -101,6 +102,55 @@ describe('metadata', () => {
     assert.ok(entitySet)
     assert.strictEqual(entitySet.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
     assert.strictEqual(entitySet.$.EntityType.value, `${namespace}.${name}`)
+
+    const navigationPropertiesCount = Object.keys(navigationProperties).length
+    if (navigationPropertiesCount) {
+      Object.keys(navigationProperties).forEach(navigationPropertyName => {
+        const { target, multiplicity } = navigationProperties[navigationPropertyName]
+        const navigationProperty = findByName(entityType.NavigationProperty, navigationPropertyName)
+        assert.ok(navigationProperty)
+        assert.strictEqual(navigationProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+        const nsRelationship = navigationProperty.$.Relationship.value
+        const fromRole = navigationProperty.$.FromRole.value
+        const toRole = navigationProperty.$.ToRole.value
+        assert.ok(nsRelationship.startsWith(`${namespace}.`))
+        const relationship = nsRelationship.substring(`${namespace}.`.length)
+
+        const association = findByName(schema.Association, relationship)
+        assert.ok(association)
+        assert.strictEqual(association.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+        association.End.forEach(associationEnd => {
+          assert.strictEqual(associationEnd.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+          if (associationEnd.$.Role.value === fromRole) {
+            assert.strictEqual(associationEnd.$.Type.value, `${namespace}.${name}`)
+            assert.strictEqual(associationEnd.$.Multiplicity.value, '1')
+          } else if (associationEnd.$.Role.value === toRole) {
+            assert.strictEqual(associationEnd.$.Type.value, `${namespace}.${target}`)
+            assert.strictEqual(associationEnd.$.Multiplicity.value, `0..${multiplicity}`)
+          } else {
+            assert.ok(false)
+          }
+        })
+
+        const associationSet = findByName(entityContainer.AssociationSet, `${relationship}Set`)
+        assert.ok(associationSet)
+        assert.strictEqual(associationSet.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+        assert.strictEqual(associationSet.$.Association.value, `${namespace}.${relationship}`)
+        associationSet.End.forEach(associationSetEnd => {
+          assert.strictEqual(associationSetEnd.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+          if (associationSetEnd.$.Role.value === fromRole) {
+            assert.strictEqual(associationSetEnd.$.EntitySet.value, `${nameSet}`)
+          } else if (associationSetEnd.$.Role.value === toRole) {
+            assert.strictEqual(associationSetEnd.$.EntitySet.value, `${target}Set`)
+          } else {
+            assert.ok(false)
+          }
+        })
+      })
+      assert.strictEqual(entityType.NavigationProperty.length, Object.keys(navigationProperties).length)
+    } else {
+      assert.ok(!entityType.NavigationProperty)
+    }
   }
 
   it('describes ODATA schema (Tag only)', () => handle({
@@ -159,6 +209,11 @@ describe('metadata', () => {
           name: { type: 'Edm.String' },
           number: { type: 'Edm.Int64' },
           modified: { type: 'Edm.DateTime' }
+        },
+        navigationProperties: {
+          children: { target: 'Record', multiplicity: '*' },
+          parent: { target: 'Record', multiplicity: '1' },
+          tags: { target: 'Tag', multiplicity: '*' }
         }
       })
       checkEntity({

@@ -34,8 +34,12 @@ module.exports = async ({ mapping, response }) => {
     .startPrefixMapping('m', METADATA_NAMESPACE)
     .startPrefixMapping('', EDM_NAMESPACE)
 
+  let sapNavigationPropertyContentVersion
   if (mapping['use-sap-extension']) {
     await promisifiedWriter.startPrefixMapping('sap', SAP_NAMESPACE)
+    sapNavigationPropertyContentVersion = {
+      'sap:content-version': 1
+    }
   }
 
   await promisifiedWriter
@@ -97,14 +101,11 @@ module.exports = async ({ mapping, response }) => {
     await promisifiedWriter.endElement() // EntityType
 
     for await (const navigationProperty of navigationProperties) {
-      let sapContentVersion
-      if (mapping['use-sap-extension']) {
-        sapContentVersion = {
-          'sap:content-version': 1
-        }
-      }
       await promisifiedWriter
-        .startElement('Association', { Name: navigationProperty.relationshipName, ...sapContentVersion })
+        .startElement('Association', {
+          Name: navigationProperty.relationshipName,
+          ...sapNavigationPropertyContentVersion
+        })
         .startElement('End', {
           Type: `${serviceNamespace}.${navigationProperty.from.name}`,
           Multiplicity: '1',
@@ -128,30 +129,30 @@ module.exports = async ({ mapping, response }) => {
   })
 
   for await (const EntityClass of entities) {
+    let attributes
+    if (mapping['use-sap-extension']) {
+      attributes = {
+        'sap:creatable': false,
+        'sap:updatable': false,
+        'sap:deletable': false
+      }
+    }
     await promisifiedWriter
       .startElement('EntitySet', {
         Name: `${EntityClass.name}Set`,
-        EntityType: `${serviceNamespace}.${EntityClass.name}`
+        EntityType: `${serviceNamespace}.${EntityClass.name}`,
+        ...attributes
       })
       .endElement() // EntitySet
 
     const navigationProperties = NavigationProperty.list(EntityClass)
     for await (const navigationProperty of navigationProperties) {
-      let attributes = {
-        Name: `${navigationProperty.relationshipName}Set`,
-        Association: `${serviceNamespace}.${navigationProperty.relationshipName}`
-      }
-      if (mapping['use-sap-extension']) {
-        attributes = {
-          ...attributes,
-          'sap:creatable': false,
-          'sap:updatable': false,
-          'sap:deletable': false,
-          'sap:content-version': 1
-        }
-      }
       await promisifiedWriter
-        .startElement('AssociationSet', attributes)
+        .startElement('AssociationSet', {
+          Name: `${navigationProperty.relationshipName}Set`,
+          Association: `${serviceNamespace}.${navigationProperty.relationshipName}`,
+          ...sapNavigationPropertyContentVersion
+        })
         .startElement('End', {
           EntitySet: `${navigationProperty.from.name}Set`,
           Role: navigationProperty.fromRoleName

@@ -1,10 +1,12 @@
 'use strict'
 
 const parseKey = key => {
-  const match = /^(?:'([^']*)'|"([^"]*)"|.*)$/.exec(key)
+  const match = /^(?:'([^']*)'|"([^"]*)"|(.*))$/.exec(key)
   if (match[3]) {
     const keys = {}
-    // match[3].replace(/(?:'([^']*)'|"([^"]*)"|.)/g)
+    match[3].replace(/([^=]+)=(?:"([^"]+)"|'([^']+)'|([^,]+))(?:,|$)/g, function (_, field, value1, value2, value3) {
+      keys[field] = value1 || value2 || value3
+    })
     return keys
   }
   return match[1] || match[2]

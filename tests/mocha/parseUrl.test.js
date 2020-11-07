@@ -4,12 +4,8 @@ const assert = require('assert')
 const parseUrl = require('../../parseUrl')
 
 const scenarios = {
-  'RecordSet': {
+  RecordSet: {
     set: 'RecordSet'
-  },
-  'RecordSet(\'abc\')': {
-    set: 'RecordSet',
-    key: 'abc'
   },
   'RecordSet(\'abc\')': {
     set: 'RecordSet',
@@ -19,7 +15,7 @@ const scenarios = {
     set: 'RecordSet',
     key: 'abc'
   },
-  'AppSetting(application="Example",version=1,setting="Preview")': {
+  'AppSetting(application="Example",version=1,setting=\'Preview\')': {
     set: 'AppSetting',
     key: {
       application: 'Example',

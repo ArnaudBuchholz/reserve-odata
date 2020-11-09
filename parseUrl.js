@@ -12,13 +12,45 @@ const parseKey = key => {
   return match[1] || match[2]
 }
 
-module.exports = url => {
-  const match = /(\w+)(?:\(([^)]+)\))?/.exec(url)
-  const parsed = {
-    set: match[1]
+const toNumber = value => parseInt(value, 10)
+const toList = value => value.split(',')
+
+const parameterParsers = {
+  $top: toNumber,
+  $skip: toNumber,
+  $expand: toList,
+  $select: toList,
+  $orderby: value => value.split(',').reduce((orders, description) => {
+    const [, field, order] = /([^ ]+)(?: (asc|desc))?/.exec(description)
+    orders[field] = order !== 'desc'
+    return orders
+  }, {}),
+  $filter: value => null
+}
+
+const parseParameters = parameters => parameters.split('&').reduce((map, parameter) => {
+  const [, name, escapedValue] = /([^=]+)=(.*)/.exec(parameter)
+  const value = decodeURIComponent(escapedValue)
+  const parser = parameterParsers[name]
+  if (parser) {
+    map[name] = parser(value)
+  } else {
+    map[name] = value
   }
-  if (match[2]) {
-    parsed.key = parseKey(match[2])
+  return map
+}, {})
+
+module.exports = url => {
+  const [, set, key, navigationProperties, parameters] = /([\w0-9_]+)(?:\(([^)]+)\))?((?:\/[\w0-9_]+)+)?(?:\?(.+))?/.exec(url)
+  const parsed = { set }
+  if (key) {
+    parsed.key = parseKey(key)
+  }
+  if (navigationProperties) {
+    parsed.navigationProperties = navigationProperties.split('/').slice(1)
+  }
+  if (parameters) {
+    parsed.parameters = parseParameters(parameters)
   }
   return parsed
 }

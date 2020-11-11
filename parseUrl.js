@@ -15,6 +15,54 @@ const parseKey = key => {
 const toNumber = value => parseInt(value, 10)
 const toList = value => value.split(',')
 
+function parseFilter (string) {
+  const tokens = []
+  string.replace(/\(|\)|\d+|[\w0-9_]+/g, token => tokens.push(token))
+
+  const invalidFilter = () => { throw new Error('invalid filter') }
+
+  // filter -> or_cond or or_cond
+  // or_cond -> and_cond and and_cond
+  // and_cond -> field operator value
+
+  function parseCondition () {
+    const [property, operator, rawValue] = tokens
+    tokens.splice(0, 3)
+    if (operator === 'eq') {
+      return { [operator]: [{ property }, parseInt(rawValue, 10)]}
+    }
+    invalidFilter()
+  }
+
+  function chain (parser, operator) {
+    let filter
+    while (tokens.length) {
+      const condition = parser()
+      if (!filter) {
+        filter = condition
+      } else if (filter[operator]) {
+        filter[operator].push(condition)
+      } else {
+        filter = { [operator]: [filter, condition] }
+      }
+      if (!tokens.length) {
+        break
+      }
+      if (tokens[0] !== operator) {
+        invalidFilter()
+      }
+      tokens.shift()
+      if (!tokens.length) {
+        invalidFilter()
+      }
+    }
+    return filter
+  }
+
+  const parseAndCond = chain.bind(null, parseCondition, 'and')
+  return chain(parseAndCond, 'or')
+}
+
 const parameterParsers = {
   $top: toNumber,
   $skip: toNumber,
@@ -25,7 +73,7 @@ const parameterParsers = {
     orders[field] = order !== 'desc'
     return orders
   }, {}),
-  $filter: value => null
+  $filter: parseFilter
 }
 
 const parseParameters = parameters => parameters.split('&').reduce((map, parameter) => {

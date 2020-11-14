@@ -25,6 +25,6 @@ describe('toJSON', () => {
     assert.strictEqual(json.modified, `/Date(${referenceTime})/`)
     assert.ok(json.__metadata)
     assert.strictEqual(json.__metadata.type, 'test.Record')
-    assert.strictEqual(json.__metadata.uri, 'Record(\'123\')')
+    assert.strictEqual(json.__metadata.uri, 'RecordSet(\'123\')')
   })
 })  

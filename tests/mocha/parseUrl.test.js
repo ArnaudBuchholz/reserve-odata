@@ -29,6 +29,18 @@ const scenarios = {
     key: 456,
     navigationProperties: ['Tags', 'Records']
   },
+  'RecordSet?search=abc': {
+    set: 'RecordSet',
+    parameters: {
+      search: 'abc'
+    }
+  },
+  'RecordSet?search=123': {
+    set: 'RecordSet',
+    parameters: {
+      search: '123'
+    }
+  },
   'RecordSet?$top=10&$skip=0': {
     set: 'RecordSet',
     parameters: {
@@ -162,7 +174,30 @@ const scenarios = {
       }
     }
   },
-  'Products?$filter=Price le 3.5 or Price gt 200  ': {
+  'Products?$filter=Price le 200 and Price gt 3.5 and Price ne 100': {
+    set: 'Products',
+    parameters: {
+      $filter: {
+        and: [{
+          lte: [
+            { property: 'Price' },
+            200
+          ]
+        }, {
+          gt: [
+            { property: 'Price' },
+            3.5
+          ]
+        }, {
+          ne: [
+            { property: 'Price' },
+            100
+          ]
+        }]
+      }
+    }
+  },
+  'Products?$filter=Price le 3.5 or Price gt 200': {
     set: 'Products',
     parameters: {
       $filter: {
@@ -179,11 +214,44 @@ const scenarios = {
         }]
       }
     }
-  }
+  },
+  'Products?$filter=Price le 3.5 or Price gt 200 or Price eq 100': {
+    set: 'Products',
+    parameters: {
+      $filter: {
+        or: [{
+          lte: [
+            { property: 'Price' },
+            3.5
+          ]
+        }, {
+          gt: [
+            { property: 'Price' },
+            200
+          ]
+        }, {
+          eq: [
+            { property: 'Price' },
+            100
+          ]
+        }]
+      }
+    }
+  },
+  'Products?$filter=Price invalid_op 100': 0,
+  'Products?$filter=Price le 3.5 or': 0,
+  'Products?$filter=Price le 3.5 or Price': 0,
+  'Products?$filter=Price le 3.5 or Price eq': 0
 }
 
 describe('parseUrl', () => {
   Object.keys(scenarios).forEach(url => it(url, () => {
-    assert.deepStrictEqual(parseUrl(url), scenarios[url])
+    let exceptionCaught
+    try {
+      assert.deepStrictEqual(parseUrl(url), scenarios[url])
+    } catch (e) {
+      exceptionCaught = true
+    }
+    assert.ok(scenarios[url] || exceptionCaught)
   }))
 })

@@ -40,8 +40,8 @@ module.exports = (entity, namespace) => {
     .join(',')
 
   json.__metadata = {
-    uri: `${constructor.name}Set(${uriKey})`,
-    type: `${namespace}.${constructor.name}`
+    uri: `${entity.constructor.name}Set(${uriKey})`,
+    type: `${namespace}.${entity.constructor.name}`
   }
 
   return json

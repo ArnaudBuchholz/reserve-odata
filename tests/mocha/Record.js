@@ -2,6 +2,7 @@
 
 const gpf = require('gpf-js')
 const attribute = gpf.attributes.decorator
+const Entity = require('../../attributes/Entity')
 const Key = require('../../attributes/Key')
 const Searchable = require('../../attributes/Searchable')
 const Sortable = require('../../attributes/Sortable')
@@ -42,6 +43,7 @@ class Record {
 }
 
 attribute(new gpf.attributes.Serializable())(Record, 'id')
+attribute(new Entity('Record'))(Record)
 attribute(new Key())(Record, 'id')
 attribute(new gpf.attributes.Serializable())(Record, 'parentId')
 attribute(new gpf.attributes.Serializable())(Record, 'name')

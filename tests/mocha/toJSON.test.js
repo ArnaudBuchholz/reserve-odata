@@ -4,7 +4,7 @@ const assert = require('assert')
 const Record = require('./Record')
 const toJSON = require('../../toJSON')
 
-const referenceTime = new Date(2020,10,13,22,52,0,0).getTime()
+const referenceTime = new Date(2020, 10, 13, 22, 52, 0, 0).getTime()
 
 describe('toJSON', () => {
   let record
@@ -27,4 +27,4 @@ describe('toJSON', () => {
     assert.strictEqual(json.__metadata.type, 'test.Record')
     assert.strictEqual(json.__metadata.uri, 'RecordSet(\'123\')')
   })
-})  
+})

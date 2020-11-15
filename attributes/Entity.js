@@ -28,4 +28,15 @@ Entity.get = EntityClass => {
   }
 }
 
+Entity.names = EntityClass => {
+  const attribute = Entity.get(EntityClass)
+  if (attribute) {
+    return attribute
+  }
+  return {
+    name: EntityClass.name,
+    setName: `${EntityClass.name}Set`
+  }
+}
+
 module.exports = Entity

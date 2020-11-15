@@ -8,7 +8,7 @@ class Entity extends gpf.attributes.Attribute {
     return this._name
   }
 
-  get set () {
+  get setName () {
     return this._setName
   }
 

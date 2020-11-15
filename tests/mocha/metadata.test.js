@@ -218,7 +218,8 @@ describe('metadata', () => {
       })
       checkEntity({
         xml,
-        name: 'AppSetting',
+        name: 'ApplicationSetting',
+        nameSet: 'ApplicationSettings',
         properties: {
           application: { type: 'Edm.String', key: true },
           version: { type: 'Edm.Int64', key: true },

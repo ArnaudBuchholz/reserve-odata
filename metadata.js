@@ -49,13 +49,7 @@ module.exports = async ({ mapping, response }) => {
     .startElement('Schema', { Namespace: serviceNamespace })
 
   for await (const EntityClass of entities) {
-    const entityDef = Entity.get(EntityClass)
-    let entityName
-    if (entityDef) {
-      entityName = entityDef.name
-    } else {
-      entityName = EntityClass.name
-    }
+    const { name: entityName } = Entity.names(EntityClass)
 
     await promisifiedWriter
       .startElement('EntityType', { Name: entityName })
@@ -138,16 +132,7 @@ module.exports = async ({ mapping, response }) => {
   })
 
   for await (const EntityClass of entities) {
-    const entityDef = Entity.get(EntityClass)
-    let entityName
-    let entitySetName
-    if (entityDef) {
-      entityName = entityDef.name
-      entitySetName = entityDef.setName
-    } else {
-      entityName = EntityClass.name
-      entitySetName = `${entityName}Set`
-    }
+    const { name: entityName, setName: entitySetName } = Entity.names(EntityClass)
 
     let attributes
     if (mapping['use-sap-extension']) {

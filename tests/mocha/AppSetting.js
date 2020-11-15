@@ -2,6 +2,7 @@
 
 const gpf = require('gpf-js')
 const attribute = gpf.attributes.decorator
+const Entity = require('../../attributes/Entity')
 const Key = require('../../attributes/Key')
 const Filterable = require('../../attributes/Filterable')
 const Searchable = require('../../attributes/Searchable')
@@ -33,6 +34,7 @@ class AppSetting {
 }
 
 attribute(new gpf.attributes.Serializable())(AppSetting, 'application')
+attribute(new Entity('ApplicationSetting', 'ApplicationSettings'))(AppSetting)
 attribute(new Key())(AppSetting, 'application')
 attribute(new Filterable())(AppSetting, 'application')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.integer }))(AppSetting, 'version')

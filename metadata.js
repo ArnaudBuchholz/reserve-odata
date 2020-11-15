@@ -1,6 +1,7 @@
 'use strict'
 
 const { $dpc } = require('./symbols')
+const Entity = require('./attributes/Entity')
 const Key = require('./attributes/Key')
 const Filterable = require('./attributes/Filterable')
 const Sortable = require('./attributes/Sortable')
@@ -48,8 +49,16 @@ module.exports = async ({ mapping, response }) => {
     .startElement('Schema', { Namespace: serviceNamespace })
 
   for await (const EntityClass of entities) {
+    const entityDef = Entity.get(EntityClass)
+    let entityName
+    if (entityDef) {
+      entityName = entityDef.name
+    } else {
+      entityName = EntityClass.name
+    }
+
     await promisifiedWriter
-      .startElement('EntityType', { Name: EntityClass.name })
+      .startElement('EntityType', { Name: entityName })
       .startElement('Key')
 
     const serialProps = gpf.serial.get(EntityClass)
@@ -129,6 +138,17 @@ module.exports = async ({ mapping, response }) => {
   })
 
   for await (const EntityClass of entities) {
+    const entityDef = Entity.get(EntityClass)
+    let entityName
+    let entitySetName
+    if (entityDef) {
+      entityName = entityDef.name
+      entitySetName = entityDef.setName
+    } else {
+      entityName = EntityClass.name
+      entitySetName = `${entityName}Set`
+    }
+
     let attributes
     if (mapping['use-sap-extension']) {
       attributes = {
@@ -139,8 +159,8 @@ module.exports = async ({ mapping, response }) => {
     }
     await promisifiedWriter
       .startElement('EntitySet', {
-        Name: `${EntityClass.name}Set`,
-        EntityType: `${serviceNamespace}.${EntityClass.name}`,
+        Name: entitySetName,
+        EntityType: `${serviceNamespace}.${entityName}`,
         ...attributes
       })
       .endElement() // EntitySet

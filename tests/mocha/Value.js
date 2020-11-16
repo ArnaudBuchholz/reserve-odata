@@ -7,8 +7,6 @@ const Key = require('../../attributes/Key')
 const Searchable = require('../../attributes/Searchable')
 const Sortable = require('../../attributes/Sortable')
 
-const minDate = new Date(0)
-
 class Value {
   get id () {
     return this._id
@@ -19,7 +17,7 @@ class Value {
   }
 
   get modified () {
-    return this._modified || minDate
+    return this._modified
   }
 }
 

@@ -6,8 +6,6 @@ const Key = require('../../attributes/Key')
 const Searchable = require('../../attributes/Searchable')
 const Sortable = require('../../attributes/Sortable')
 
-const minDate = new Date(0)
-
 class Tag {
   get name () {
     return this._name
@@ -18,7 +16,7 @@ class Tag {
   }
 
   get modified () {
-    return this._modified || minDate
+    return this._modified
   }
 
   constructor (name) {

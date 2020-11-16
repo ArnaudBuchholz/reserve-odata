@@ -1,11 +1,11 @@
 'use strict'
 
 const gpf = require('gpf-js')
+const Entity = require('./attributes/Entity')
 const Key = require('./attributes/Key')
 
 const mapOfSerialTypeToJSON = {
-  undefined: () => '',
-  number: value => value,
+  integer: value => value,
   string: value => `'${encodeURIComponent(value)}'`
 }
 
@@ -39,9 +39,10 @@ module.exports = (entity, namespace) => {
     )
     .join(',')
 
+  const { name: entityName, setName: entitySetName } = Entity.names(entity.constructor)
   json.__metadata = {
-    uri: `${entity.constructor.name}Set(${uriKey})`,
-    type: `${namespace}.${entity.constructor.name}`
+    uri: `${entitySetName}(${uriKey})`,
+    type: `${namespace}.${entityName}`
   }
 
   return json

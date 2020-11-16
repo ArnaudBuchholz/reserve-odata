@@ -5,8 +5,9 @@ const attribute = gpf.attributes.decorator
 const Entity = require('../../attributes/Entity')
 const Key = require('../../attributes/Key')
 const Filterable = require('../../attributes/Filterable')
-const Searchable = require('../../attributes/Searchable')
 const Sortable = require('../../attributes/Sortable')
+const NavigationProperty = require('../../attributes/NavigationProperty')
+const Value = require('./Value')
 
 class AppSetting {
   get application () {
@@ -21,8 +22,7 @@ class AppSetting {
     return this._setting
   }
 
-  get value () {
-    return this._value
+  getValues () {
   }
 
   constructor (application, version, setting, value) {
@@ -33,8 +33,8 @@ class AppSetting {
   }
 }
 
-attribute(new gpf.attributes.Serializable())(AppSetting, 'application')
 attribute(new Entity('ApplicationSetting', 'ApplicationSettings'))(AppSetting)
+attribute(new gpf.attributes.Serializable())(AppSetting, 'application')
 attribute(new Key())(AppSetting, 'application')
 attribute(new Filterable())(AppSetting, 'application')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.integer }))(AppSetting, 'version')
@@ -44,7 +44,6 @@ attribute(new Sortable())(AppSetting, 'version')
 attribute(new gpf.attributes.Serializable())(AppSetting, 'setting')
 attribute(new Key())(AppSetting, 'setting')
 attribute(new Filterable())(AppSetting, 'setting')
-attribute(new gpf.attributes.Serializable())(AppSetting, 'value')
-attribute(new Searchable())(AppSetting, 'value')
+attribute(new NavigationProperty('values', Value, '*'))(AppSetting, 'getValues')
 
 module.exports = AppSetting

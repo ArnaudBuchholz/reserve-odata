@@ -8,10 +8,11 @@ const handler = require('../../index')
 const Tag = require('./Tag')
 const Record = require('./Record')
 const AppSetting = require('./AppSetting')
+const Value = require('./Value')
 
 module.exports = function ({
   request,
-  classes = [Tag, Record, AppSetting],
+  classes = [Tag, Record, AppSetting, Value],
   serviceNamespace = 'test',
   useSapExtension = true
 }) {

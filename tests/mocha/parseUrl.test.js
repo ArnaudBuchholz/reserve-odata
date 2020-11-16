@@ -245,13 +245,19 @@ const scenarios = {
 }
 
 describe('parseUrl', () => {
-  Object.keys(scenarios).forEach(url => it(url, () => {
-    let exceptionCaught
-    try {
-      assert.deepStrictEqual(parseUrl(url), scenarios[url])
-    } catch (e) {
-      exceptionCaught = true
+  Object.keys(scenarios).forEach(url => {
+    let label = url
+    if (!scenarios[url]) {
+      label = '(error) ' + label
     }
-    assert.ok(scenarios[url] || exceptionCaught)
-  }))
+    it(label, () => {
+      let exceptionCaught
+      try {
+        assert.deepStrictEqual(parseUrl(url), scenarios[url])
+      } catch (e) {
+        exceptionCaught = true
+      }
+      assert.ok(scenarios[url] || exceptionCaught)
+    })
+  })
 })

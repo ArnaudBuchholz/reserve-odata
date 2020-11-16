@@ -106,7 +106,7 @@ describe('metadata', () => {
     const navigationPropertiesCount = Object.keys(navigationProperties).length
     if (navigationPropertiesCount) {
       Object.keys(navigationProperties).forEach(navigationPropertyName => {
-        const { target, multiplicity } = navigationProperties[navigationPropertyName]
+        const { target, targetSet, multiplicity } = navigationProperties[navigationPropertyName]
         const navigationProperty = findByName(entityType.NavigationProperty, navigationPropertyName)
         assert.ok(navigationProperty)
         assert.strictEqual(navigationProperty.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
@@ -141,7 +141,7 @@ describe('metadata', () => {
           if (associationSetEnd.$.Role.value === fromRole) {
             assert.strictEqual(associationSetEnd.$.EntitySet.value, `${nameSet}`)
           } else if (associationSetEnd.$.Role.value === toRole) {
-            assert.strictEqual(associationSetEnd.$.EntitySet.value, `${target}Set`)
+            assert.strictEqual(associationSetEnd.$.EntitySet.value, `${targetSet}`)
           } else {
             assert.ok(false)
           }
@@ -190,7 +190,7 @@ describe('metadata', () => {
     .then(xml => {
       // console.log(JSON.stringify(xml))
       checkStructure(xml)
-      checkEntitiesCount(xml, 3)
+      checkEntitiesCount(xml, 4)
       checkEntity({
         xml,
         name: 'Tag',
@@ -211,9 +211,9 @@ describe('metadata', () => {
           modified: { type: 'Edm.DateTime' }
         },
         navigationProperties: {
-          children: { target: 'Record', multiplicity: '*' },
-          parent: { target: 'Record', multiplicity: '1' },
-          tags: { target: 'Tag', multiplicity: '*' }
+          children: { target: 'Record', targetSet: 'RecordSet', multiplicity: '*' },
+          parent: { target: 'Record', targetSet: 'RecordSet', multiplicity: '1' },
+          tags: { target: 'Tag', targetSet: 'TagSet', multiplicity: '*' }
         }
       })
       checkEntity({
@@ -223,8 +223,20 @@ describe('metadata', () => {
         properties: {
           application: { type: 'Edm.String', key: true },
           version: { type: 'Edm.Int64', key: true },
-          setting: { type: 'Edm.String', key: true },
-          value: { type: 'Edm.String' }
+          setting: { type: 'Edm.String', key: true }
+        },
+        navigationProperties: {
+          values: { target: 'Value', targetSet: 'Values', multiplicity: '*' }
+        }
+      })
+      checkEntity({
+        xml,
+        name: 'Value',
+        nameSet: 'Values',
+        properties: {
+          id: { type: 'Edm.String', key: true },
+          value: { type: 'Edm.String' },
+          modified: { type: 'Edm.DateTime' }
         }
       })
     })

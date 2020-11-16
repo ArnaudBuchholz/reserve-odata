@@ -9,8 +9,6 @@ const Sortable = require('../../attributes/Sortable')
 const NavigationProperty = require('../../attributes/NavigationProperty')
 const Tag = require('./Tag')
 
-const minDate = new Date(0)
-
 class Record {
   get id () {
     return this._id
@@ -21,15 +19,15 @@ class Record {
   }
 
   get name () {
-    return this._name || ''
+    return this._name
   }
 
   get number () {
-    return this._number || 0
+    return this._number
   }
 
   get modified () {
-    return this._modified || minDate
+    return this._modified
   }
 
   getChildren () {

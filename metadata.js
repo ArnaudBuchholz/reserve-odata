@@ -104,19 +104,20 @@ module.exports = async ({ mapping, response }) => {
     await promisifiedWriter.endElement() // EntityType
 
     for await (const navigationProperty of navigationProperties) {
+      const { name: toEntityName } = Entity.names(navigationProperty.to)
       await promisifiedWriter
         .startElement('Association', {
           Name: navigationProperty.relationshipName,
           ...sapNavigationPropertyContentVersion
         })
         .startElement('End', {
-          Type: `${serviceNamespace}.${navigationProperty.from.name}`,
+          Type: `${serviceNamespace}.${entityName}`,
           Multiplicity: '1',
           Role: navigationProperty.fromRoleName
         })
         .endElement() // End
         .startElement('End', {
-          Type: `${serviceNamespace}.${navigationProperty.to.name}`,
+          Type: `${serviceNamespace}.${toEntityName}`,
           Multiplicity: `0..${navigationProperty.multiplicity}`,
           Role: navigationProperty.toRoleName
         })
@@ -152,6 +153,7 @@ module.exports = async ({ mapping, response }) => {
 
     const navigationProperties = NavigationProperty.list(EntityClass)
     for await (const navigationProperty of navigationProperties) {
+      const { setName: toEntitySetName } = Entity.names(navigationProperty.to)
       await promisifiedWriter
         .startElement('AssociationSet', {
           Name: `${navigationProperty.relationshipName}Set`,
@@ -159,12 +161,12 @@ module.exports = async ({ mapping, response }) => {
           ...sapNavigationPropertyContentVersion
         })
         .startElement('End', {
-          EntitySet: `${navigationProperty.from.name}Set`,
+          EntitySet: entitySetName,
           Role: navigationProperty.fromRoleName
         })
         .endElement() // End
         .startElement('End', {
-          EntitySet: `${navigationProperty.to.name}Set`,
+          EntitySet: toEntitySetName,
           Role: navigationProperty.toRoleName
         })
         .endElement() // End

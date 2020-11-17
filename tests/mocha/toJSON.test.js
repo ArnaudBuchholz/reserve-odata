@@ -23,6 +23,7 @@ describe('toJSON', () => {
     assert.ok(json.__metadata)
     assert.strictEqual(json.__metadata.type, 'test.Record')
     assert.strictEqual(json.__metadata.uri, 'RecordSet(\'123\')')
+    assert.strictEqual(Object.keys(json).length, 5)
   })
 
   it('supports multivaluated keys and entity set renaming', () => {
@@ -38,6 +39,7 @@ describe('toJSON', () => {
     assert.ok(json.__metadata)
     assert.strictEqual(json.__metadata.type, 'test.ApplicationSetting')
     assert.strictEqual(json.__metadata.uri, 'ApplicationSettings(application=\'Test\',version=1,setting=\'Switch1\')')
+    assert.strictEqual(Object.keys(json).length, 4)
   })
 
   it('supports null date', () => {
@@ -54,5 +56,24 @@ describe('toJSON', () => {
     assert.ok(json.__metadata)
     assert.strictEqual(json.__metadata.type, 'test.Record')
     assert.strictEqual(json.__metadata.uri, 'RecordSet(\'123\')')
+    assert.strictEqual(Object.keys(json).length, 5)
+  })
+
+  it('supports $select', () => {
+    const record = new Record()
+    record._id = '123'
+    record._name = 'Test'
+    record._number = 3475
+    record._modified = new Date(referenceTime)
+
+    const json = toJSON(record, 'test', ['id', 'name'])
+    assert.strictEqual(json.id, '123')
+    assert.strictEqual(json.name, 'Test')
+    assert.strictEqual(json.number, undefined)
+    assert.strictEqual(json.modified, undefined)
+    assert.ok(json.__metadata)
+    assert.strictEqual(json.__metadata.type, 'test.Record')
+    assert.strictEqual(json.__metadata.uri, 'RecordSet(\'123\')')
+    assert.strictEqual(Object.keys(json).length, 3)
   })
 })

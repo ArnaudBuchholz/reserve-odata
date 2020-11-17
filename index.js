@@ -4,6 +4,9 @@ const { $dpc, $set2dpc } = require('./symbols')
 const metadata = require('./metadata')
 const Entity = require('./attributes/Entity')
 const parseUrl = require('./parseUrl')
+const toJSON = require('./toJSON')
+
+const jsonContentType = 'application/json'
 
 const handlers = {}
 
@@ -13,12 +16,27 @@ handlers.GET = async function ({ mapping, redirect, request, response }) {
   }
   const parsedUrl = parseUrl(redirect)
   const EntityClass = mapping[$set2dpc](parsedUrl.set)
+  let entities
   if (parsedUrl.key) {
-
+    entities = [EntityClass.read(parsedUrl.key)]
     // navigationProperties
   } else {
-    
+
   }
+  entities = entities.map(entity => toJSON(entity, mapping['service-namespace'], parsedUrl.parameters.$select))
+  // expand
+  let result
+  if (parsedUrl.key) {
+    result = entities[0]
+  }
+  const content = JSON.stringify({
+    d: result
+  })
+  response.writeHead(200, {
+    'Content-Type': jsonContentType,
+    'Content-Length': content.length
+  })
+  response.end(content)
 }
 
 handlers.POST = async function ({ redirect, request, response }) {

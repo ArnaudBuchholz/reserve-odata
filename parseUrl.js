@@ -109,6 +109,8 @@ module.exports = url => {
   }
   if (parameters) {
     parsed.parameters = parseParameters(parameters)
+  } else {
+    parsed.parameters = {}
   }
   return parsed
 }

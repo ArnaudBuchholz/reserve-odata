@@ -15,7 +15,7 @@ function getKeys (entity) {
   return Object.keys(gpf.attributes.get(EntityClass, Key)).map(name => serialProperties[name])
 }
 
-module.exports = (entity, namespace) => {
+module.exports = (entity, namespace, select) => {
   const json = gpf.serial.toRaw(entity, (value, property) => {
     if (gpf.serial.types.datetime === property.type) {
       if (value) {
@@ -25,6 +25,15 @@ module.exports = (entity, namespace) => {
     }
     return value
   })
+
+  // While waiting for https://github.com/ArnaudBuchholz/gpf-js/issues/332
+  if (select) {
+    Object.keys(json).forEach(property => {
+      if (!select.includes(property)) {
+        delete json[property]
+      }
+    })
+  }
 
   const uriKey = getKeys(entity)
     .map(property => {

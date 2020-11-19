@@ -2,11 +2,11 @@
 
 const gpf = require('gpf-js')
 const attribute = gpf.attributes.decorator
-const Entity = require('../../attributes/Entity')
-const Key = require('../../attributes/Key')
-const Searchable = require('../../attributes/Searchable')
-const Sortable = require('../../attributes/Sortable')
-const NavigationProperty = require('../../attributes/NavigationProperty')
+const Entity = require('../attributes/Entity')
+const Key = require('../attributes/Key')
+const Searchable = require('../attributes/Searchable')
+const Sortable = require('../attributes/Sortable')
+const NavigationProperty = require('../attributes/NavigationProperty')
 const Tag = require('./Tag')
 
 class Record {

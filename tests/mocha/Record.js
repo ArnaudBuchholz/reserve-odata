@@ -54,4 +54,13 @@ attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren'
 attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
 attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
 
+Record.read = key => {
+  const record = new Record()
+  record._id = key
+  record._name = key.toUpperCase()
+  record._number = parseInt(key, 16)
+  record._modified = new Date()
+  return record
+}
+
 module.exports = Record

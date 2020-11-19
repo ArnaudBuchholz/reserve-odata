@@ -2,9 +2,9 @@
 
 const gpf = require('gpf-js')
 const attribute = gpf.attributes.decorator
-const Key = require('../../attributes/Key')
-const Searchable = require('../../attributes/Searchable')
-const Sortable = require('../../attributes/Sortable')
+const Key = require('../attributes/Key')
+const Searchable = require('../attributes/Searchable')
+const Sortable = require('../attributes/Sortable')
 
 class Tag {
   get name () {

@@ -3,7 +3,7 @@
 const assert = require('assert')
 const { parseStringPromise } = require('xml2js')
 const handle = require('./handle.js')
-const Tag = require('./Tag')
+const Tag = require('../Tag')
 
 const getLocalName = name => {
   if (name.includes(':')) {
@@ -121,14 +121,13 @@ describe('metadata', () => {
         assert.strictEqual(association.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
         association.End.forEach(associationEnd => {
           assert.strictEqual(associationEnd.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+          assert.ok(associationEnd.$.Role.value === fromRole || associationEnd.$.Role.value === toRole)
           if (associationEnd.$.Role.value === fromRole) {
             assert.strictEqual(associationEnd.$.Type.value, `${namespace}.${name}`)
             assert.strictEqual(associationEnd.$.Multiplicity.value, '1')
-          } else if (associationEnd.$.Role.value === toRole) {
+          } else {
             assert.strictEqual(associationEnd.$.Type.value, `${namespace}.${target}`)
             assert.strictEqual(associationEnd.$.Multiplicity.value, `0..${multiplicity}`)
-          } else {
-            assert.ok(false)
           }
         })
 
@@ -138,12 +137,11 @@ describe('metadata', () => {
         assert.strictEqual(associationSet.$.Association.value, `${namespace}.${relationship}`)
         associationSet.End.forEach(associationSetEnd => {
           assert.strictEqual(associationSetEnd.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
+          assert.ok(associationSetEnd.$.Role.value === fromRole || associationSetEnd.$.Role.value === toRole)
           if (associationSetEnd.$.Role.value === fromRole) {
             assert.strictEqual(associationSetEnd.$.EntitySet.value, `${nameSet}`)
-          } else if (associationSetEnd.$.Role.value === toRole) {
-            assert.strictEqual(associationSetEnd.$.EntitySet.value, `${targetSet}`)
           } else {
-            assert.ok(false)
+            assert.strictEqual(associationSetEnd.$.EntitySet.value, `${targetSet}`)
           }
         })
       })

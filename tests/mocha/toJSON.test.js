@@ -1,8 +1,8 @@
 'use strict'
 
 const assert = require('assert')
-const Record = require('./Record')
-const AppSetting = require('./AppSetting')
+const Record = require('../Record')
+const AppSetting = require('../AppSetting')
 const toJSON = require('../../toJSON')
 
 const referenceTime = new Date(2020, 10, 13, 22, 52, 0, 0).getTime()

@@ -2,10 +2,10 @@
 
 const gpf = require('gpf-js')
 const attribute = gpf.attributes.decorator
-const Entity = require('../../attributes/Entity')
-const Key = require('../../attributes/Key')
-const Searchable = require('../../attributes/Searchable')
-const Sortable = require('../../attributes/Sortable')
+const Entity = require('../attributes/Entity')
+const Key = require('../attributes/Key')
+const Searchable = require('../attributes/Searchable')
+const Sortable = require('../attributes/Sortable')
 
 class Value {
   get id () {

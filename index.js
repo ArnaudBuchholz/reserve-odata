@@ -15,10 +15,10 @@ handlers.GET = async function ({ mapping, redirect, request, response }) {
     return metadata(...arguments)
   }
   const parsedUrl = parseUrl(redirect)
-  const EntityClass = mapping[$set2dpc](parsedUrl.set)
+  const EntityClass = mapping[$set2dpc][parsedUrl.set]
   let entities
   if (parsedUrl.key) {
-    entities = [EntityClass.read(parsedUrl.key)]
+    entities = [await Entity.read(EntityClass, parsedUrl.key)]
     // navigationProperties
   } else {
 
@@ -26,7 +26,7 @@ handlers.GET = async function ({ mapping, redirect, request, response }) {
   entities = entities.map(entity => toJSON(entity, mapping['service-namespace'], parsedUrl.parameters.$select))
   // expand
   let result
-  if (parsedUrl.key) {
+  if (parsedUrl.key /* && !navigationProperties */) {
     result = entities[0]
   }
   const content = JSON.stringify({

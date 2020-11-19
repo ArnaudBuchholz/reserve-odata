@@ -5,10 +5,10 @@ const Response = require('reserve/mock/Response')
 const { check } = require('reserve/mapping')
 const handler = require('../../index')
 
-const Tag = require('./Tag')
-const Record = require('./Record')
-const AppSetting = require('./AppSetting')
-const Value = require('./Value')
+const Tag = require('../Tag')
+const Record = require('../Record')
+const AppSetting = require('../AppSetting')
+const Value = require('../Value')
 
 module.exports = function ({
   request,

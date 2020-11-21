@@ -42,13 +42,13 @@ Each EntityClass must be decorated with specific attributes to control the way t
 
 It must also offer the following static members :
 
-### `async EntityClass.read (keys) : object`
+### `async EntityClass.read (request, keys) : object`
 
 Might be changed thanks to a class attribute
 
 Get an entity using its key
 
-### `async EntityClass.list (filters) : []`
+### `async EntityClass.list (request, filters) : []`
 
 Might be changed thanks to a class attribute
 
@@ -59,7 +59,7 @@ First level properties are AND gpf.typedef.filterItem
 
 $select, $sort, $top & $skip are handled internally
 
-### `async EntityClass.create (properties) : object`
+### `async EntityClass.create (request, properties) : object`
 
 Used for create
 

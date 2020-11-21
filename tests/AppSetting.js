@@ -22,7 +22,7 @@ class AppSetting {
     return this._setting
   }
 
-  getValues () {
+  getValues (/*filter*/) {
     const result = []
     for (let index = 0; index < this._version; ++index) {
       const value = new Value()

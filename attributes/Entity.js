@@ -39,6 +39,6 @@ Entity.names = EntityClass => {
   }
 }
 
-Entity.read = (EntityClass, key) => EntityClass.read(key)
+Entity.read = (EntityClass, request, key) => EntityClass.read(request, key)
 
 module.exports = Entity

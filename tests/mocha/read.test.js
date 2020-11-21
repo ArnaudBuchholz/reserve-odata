@@ -44,6 +44,31 @@ describe('read', () => {
       assert.strictEqual(entity.__metadata.uri, 'ApplicationSettings(application=\'Example\',version=1,setting=\'Preview\')')
       assert.strictEqual(Object.keys(entity).length, 4)
     })
+
+    describe('expand', () => {
+      [0, 1, 2, 5].forEach(count =>
+        test(`ApplicationSettings(application='Example',version=${count},setting='Preview')?$expand=values`, response => {
+          const entity = JSON.parse(response.toString()).d
+          assert.strictEqual(entity.application, 'Example')
+          assert.strictEqual(entity.version, 1)
+          assert.strictEqual(entity.setting, 'Preview')
+          assert.ok(entity.__metadata)
+          assert.strictEqual(entity.__metadata.type, 'test.ApplicationSetting')
+          assert.strictEqual(entity.__metadata.uri, 'ApplicationSettings(application=\'Example\',version=1,setting=\'Preview\')')
+          const entities = entity.values
+          assert.strictEqual(entities.length, count)
+          entities.forEach((entity, index) => {
+            assert.strictEqual(entity.id, `Example-${count}-Preview-${index}`)
+            assert.strictEqual(entity.value, `Preview-${index}`)
+            assert.ok(entity.__metadata)
+            assert.strictEqual(entity.__metadata.type, 'test.Value')
+            assert.strictEqual(entity.__metadata.uri, `Values('Example-${count}-Preview-${index}')`)
+            assert.strictEqual(Object.keys(entity).length, 4)
+          })
+          assert.strictEqual(Object.keys(entity).length, 5)
+        })
+      )
+    })
   })
 
   describe('navigation properties', () => {

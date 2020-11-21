@@ -42,7 +42,7 @@ class NavigationProperty extends gpf.attributes.Attribute {
 
 NavigationProperty.list = EntityClass => {
   const dictionary = gpf.attributes.get(EntityClass, NavigationProperty)
-  return Object.keys(dictionary).map(name => dictionary[name][0])
+  return Object.keys(dictionary).map(member => dictionary[member][0])
 }
 
 attribute(new gpf.attributes.UniqueAttribute())(NavigationProperty)

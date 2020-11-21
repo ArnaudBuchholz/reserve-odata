@@ -54,7 +54,7 @@ attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren'
 attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
 attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
 
-Record.read = key => {
+Record.read = (request, key) => {
   const record = new Record()
   record._id = key
   record._name = key.toUpperCase()

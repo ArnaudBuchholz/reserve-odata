@@ -32,6 +32,12 @@ class AppSetting {
     }
     return result
   }
+
+  constructor (key) {
+    Object.keys(key).forEach(name => {
+      this[`_${name}`] = key[name]
+    }, this)
+  }
 }
 
 attribute(new Entity('ApplicationSetting', 'ApplicationSettings'))(AppSetting)
@@ -47,12 +53,6 @@ attribute(new Key())(AppSetting, 'setting')
 attribute(new Filterable())(AppSetting, 'setting')
 attribute(new NavigationProperty('values', Value, '*'))(AppSetting, 'getValues')
 
-AppSetting.read = (request, key) => {
-  const record = new AppSetting()
-  Object.keys(key).forEach(name => {
-    record[`_${name}`] = key[name]
-  })
-  return record
-}
+AppSetting.read = (request, key) => new AppSetting(key)
 
 module.exports = AppSetting

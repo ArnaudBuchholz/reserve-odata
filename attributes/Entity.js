@@ -21,7 +21,7 @@ class Entity extends gpf.attributes.Attribute {
 
 attribute(new gpf.attributes.ClassAttribute())(Entity)
 
-Entity.get = EntityClass => {
+const getAttribute = EntityClass => {
   const dictionary = gpf.attributes.get(EntityClass, Entity)
   if (dictionary.$attributes) {
     return dictionary.$attributes[0]
@@ -29,7 +29,7 @@ Entity.get = EntityClass => {
 }
 
 Entity.names = EntityClass => {
-  const attribute = Entity.get(EntityClass)
+  const attribute = getAttribute(EntityClass)
   if (attribute) {
     return attribute
   }

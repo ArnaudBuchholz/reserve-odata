@@ -68,4 +68,47 @@ describe('toJSON', () => {
     assert.strictEqual(json.__metadata.uri, 'RecordSet(\'d93\')')
     assert.strictEqual(Object.keys(json).length, 3)
   })
+
+  it('supports navigationProperties (single)', () => {
+    const record = new Record('d93')
+    record.parent = new Record('abc')
+
+    const json = toJSON(record, 'test')
+    assert.strictEqual(Object.keys(json).length, 6)
+
+    const parent = json.parent
+    assert.strictEqual(parent.id, 'abc')
+    assert.strictEqual(parent.name, 'ABC')
+    assert.strictEqual(parent.number, 2748)
+    assert.notStrictEqual(parent.modified, undefined)
+    assert.ok(parent.__metadata)
+    assert.strictEqual(parent.__metadata.type, 'test.Record')
+    assert.strictEqual(parent.__metadata.uri, 'RecordSet(\'abc\')')
+    assert.strictEqual(Object.keys(parent).length, 5)
+  })
+
+  it('supports navigationProperties (multiple)', () => {
+    const record = new Record('d93')
+    const ids = ['abc', 'abd', 'abe']
+    record.children = ids.map(id => new Record(id))
+
+    const json = toJSON(record, 'test')
+    assert.strictEqual(Object.keys(json).length, 6)
+
+    const children = json.children
+    assert.ok(Array.isArray(children))
+    assert.strictEqual(children.length, 3)
+
+    ids.forEach((id, index) => {
+      const child = children[index]
+      assert.strictEqual(child.id, id)
+      assert.strictEqual(child.name, id.toUpperCase())
+      assert.strictEqual(child.number, parseInt(id, 16))
+      assert.notStrictEqual(child.modified, undefined)
+      assert.ok(child.__metadata)
+      assert.strictEqual(child.__metadata.type, 'test.Record')
+      assert.strictEqual(child.__metadata.uri, `RecordSet('${id}')`)
+      assert.strictEqual(Object.keys(child).length, 5)
+    })
+  })
 })

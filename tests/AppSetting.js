@@ -47,7 +47,7 @@ attribute(new Key())(AppSetting, 'setting')
 attribute(new Filterable())(AppSetting, 'setting')
 attribute(new NavigationProperty('values', Value, '*'))(AppSetting, 'getValues')
 
-AppSetting.read = key => {
+AppSetting.read = (request, key) => {
   const record = new AppSetting()
   Object.keys(key).forEach(name => {
     record[`_${name}`] = key[name]

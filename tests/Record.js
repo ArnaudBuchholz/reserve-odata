@@ -38,6 +38,13 @@ class Record {
 
   getTags () {
   }
+
+  constructor (key) {
+    this._id = key
+    this._name = key.toUpperCase()
+    this._number = parseInt(key, 16)
+    this._modified = new Date()
+  }
 }
 
 attribute(new gpf.attributes.Serializable())(Record, 'id')
@@ -54,13 +61,6 @@ attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren'
 attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
 attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
 
-Record.read = (request, key) => {
-  const record = new Record()
-  record._id = key
-  record._name = key.toUpperCase()
-  record._number = parseInt(key, 16)
-  record._modified = new Date()
-  return record
-}
+Record.read = (request, key) => new Record(key)
 
 module.exports = Record

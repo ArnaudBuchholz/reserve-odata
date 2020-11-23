@@ -6,18 +6,31 @@ const handle = require('./handle.js')
 const test = (url, callback) => it(url, () => handle({ request: url }).then(callback))
 
 describe('read', () => {
-  describe('single entity access', () => {
+  function isRecord (entity, key) {
+    let id
+    let number
+    if (typeof key === 'string') {
+      id = key
+      number = parseInt(id, 16)
+    } else {
+      id = Number(key).toString(16)
+      number = key
+    }
+    assert.strictEqual(entity.id, id)
+    assert.strictEqual(entity.name, id.toUpperCase())
+    assert.strictEqual(entity.number, number)
+    assert.notStrictEqual(entity.modified, undefined)
+    assert.ok(entity.__metadata)
+    assert.strictEqual(entity.__metadata.type, 'test.Record')
+    assert.strictEqual(entity.__metadata.uri, `RecordSet('${id}')`)
+    assert.strictEqual(Object.keys(entity).length, 5)
+  }
+
+  describe('single entity', () => {
     test('RecordSet(\'abc\')', response => {
       assert.strictEqual(response.statusCode, 200)
       const entity = JSON.parse(response.toString()).d
-      assert.strictEqual(entity.id, 'abc')
-      assert.strictEqual(entity.name, 'ABC')
-      assert.strictEqual(entity.number, 2748)
-      assert.notStrictEqual(entity.modified, undefined)
-      assert.ok(entity.__metadata)
-      assert.strictEqual(entity.__metadata.type, 'test.Record')
-      assert.strictEqual(entity.__metadata.uri, 'RecordSet(\'abc\')')
-      assert.strictEqual(Object.keys(entity).length, 5)
+      isRecord(entity, 'abc')
     })
 
     test('RecordSet(\'abc\')?$select=id,name', response => {
@@ -68,6 +81,16 @@ describe('read', () => {
           assert.strictEqual(Object.keys(entity).length, 5)
         })
       )
+    })
+  })
+
+  describe('entity set', () => {
+    test('RecordSet', response => {
+      assert.strictEqual(response.statusCode, 200)
+      const entities = JSON.parse(response.toString()).d.results
+      assert.strictEqual(entities.length, 4000)
+      isRecord(entities[0], 0)
+      isRecord(entities[3475], 3475)
     })
   })
 

@@ -61,6 +61,18 @@ attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren'
 attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
 attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
 
-Record.read = (request, key) => new Record(key)
+const records = []
+
+for (let number = 0; number < 4000; ++number) {
+  records.push(new Record(Number(number).toString(16)))
+}
+
+Record.read = (request, key) => records[parseInt(key, 16)]
+
+Record.find = (request, filter) => {
+  if (!filter) {
+    return records
+  }
+}
 
 module.exports = Record

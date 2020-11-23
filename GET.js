@@ -35,9 +35,8 @@ module.exports = async function ({ mapping, redirect, request, response }) {
       }, entities)
     }
   } else {
-
+    entities = await Entity.find(EntityClass, request, parsedUrl.$filter)
   }
-  // expand
   if (parsedUrl.parameters.$expand) {
     parsedUrl.parameters.$expand.forEach(navigationPropertyName => {
       const memberName = getNavigationPropertyMethodName(entities[0], navigationPropertyName) // Assuming same type for all

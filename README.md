@@ -48,14 +48,11 @@ Might be changed thanks to a class attribute
 
 Get an entity using its key
 
-### `async EntityClass.list (request, filters) : []`
+### `async EntityClass.find (request, filters) : []`
 
 Might be changed thanks to a class attribute
 
-filters might include parent entity for navigation properties
-$parent
-$navigationProperty
-First level properties are AND gpf.typedef.filterItem
+gpf.typedef.filterItem
 
 $select, $sort, $top & $skip are handled internally
 

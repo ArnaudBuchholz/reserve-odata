@@ -50,11 +50,11 @@ describe('read', () => {
         test(`ApplicationSettings(application='Example',version=${count},setting='Preview')?$expand=values`, response => {
           const entity = JSON.parse(response.toString()).d
           assert.strictEqual(entity.application, 'Example')
-          assert.strictEqual(entity.version, 1)
+          assert.strictEqual(entity.version, count)
           assert.strictEqual(entity.setting, 'Preview')
           assert.ok(entity.__metadata)
           assert.strictEqual(entity.__metadata.type, 'test.ApplicationSetting')
-          assert.strictEqual(entity.__metadata.uri, 'ApplicationSettings(application=\'Example\',version=1,setting=\'Preview\')')
+          assert.strictEqual(entity.__metadata.uri, `ApplicationSettings(application='Example',version=${count},setting='Preview')`)
           const entities = entity.values
           assert.strictEqual(entities.length, count)
           entities.forEach((entity, index) => {

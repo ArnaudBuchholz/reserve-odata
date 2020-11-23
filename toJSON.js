@@ -3,6 +3,7 @@
 const gpf = require('gpf-js')
 const Entity = require('./attributes/Entity')
 const Key = require('./attributes/Key')
+const NavigationProperty = require('./attributes/NavigationProperty')
 
 const mapOfSerialTypeToJSON = {
   integer: value => value,
@@ -15,7 +16,7 @@ function getKeys (entity) {
   return Object.keys(gpf.attributes.get(EntityClass, Key)).map(name => serialProperties[name])
 }
 
-module.exports = (entity, namespace, select) => {
+module.exports = function toJSON (entity, namespace, select) {
   const json = gpf.serial.toRaw(entity, (value, property) => {
     if (gpf.serial.types.datetime === property.type) {
       if (value) {
@@ -53,6 +54,17 @@ module.exports = (entity, namespace, select) => {
     uri: `${entitySetName}(${uriKey})`,
     type: `${namespace}.${entityName}`
   }
+
+  NavigationProperty.list(entity)
+    .forEach(navigationProperty => {
+      const name = navigationProperty.name
+      const value = entity[name]
+      if (Array.isArray(value)) {
+        json[name] = value.map(item => toJSON(item, namespace))
+      } else if (value) {
+        json[name] = toJSON(value, namespace)
+      }
+    })
 
   return json
 }

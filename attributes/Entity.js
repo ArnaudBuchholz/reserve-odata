@@ -40,5 +40,6 @@ Entity.names = EntityClass => {
 }
 
 Entity.read = (EntityClass, request, key) => EntityClass.read(request, key)
+Entity.find = (EntityClass, request, filter) => EntityClass.find(request, filter)
 
 module.exports = Entity

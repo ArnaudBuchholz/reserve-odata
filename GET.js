@@ -22,6 +22,7 @@ module.exports = async function ({ mapping, redirect, request, response }) {
   const parsedUrl = parseUrl(redirect)
   const EntityClass = mapping[$set2dpc][parsedUrl.set]
   let entities
+  let singleEntityAccess = false
   if (parsedUrl.key) {
     entities = [await Entity.read(EntityClass, request, parsedUrl.key)]
     if (parsedUrl.navigationProperties) {
@@ -33,9 +34,11 @@ module.exports = async function ({ mapping, redirect, request, response }) {
         const memberName = getNavigationPropertyMethodName(context[0], navigationPropertyName) // Assuming same type for all
         return context.reduce((result, entity) => result.concat(entity[memberName](filter)), [])
       }, entities)
+    } else {
+      singleEntityAccess = true
     }
   } else {
-    entities = await Entity.find(EntityClass, request, parsedUrl.$filter)
+    entities = await Entity.find(EntityClass, request, parsedUrl.parameters.$filter)
   }
   if (parsedUrl.parameters.$expand) {
     parsedUrl.parameters.$expand.forEach(navigationPropertyName => {
@@ -45,18 +48,24 @@ module.exports = async function ({ mapping, redirect, request, response }) {
       })
     })
   }
-  entities = entities.map(entity => toJSON(entity, mapping['service-namespace'], parsedUrl.parameters.$select))
-  let result
-  if (parsedUrl.key && !parsedUrl.navigationProperties) {
-    result = entities[0]
-  } else {
-    result = { results: entities }
+  if (!singleEntityAccess) {
     // $order
     // $top && $skip
+    if (parsedUrl.parameters.$skip) {
+      entities = entities.slice(parsedUrl.parameters.$skip)
+    }
+    if (parsedUrl.parameters.$top) {
+      entities = entities.slice(0, parsedUrl.parameters.$top)
+    }
   }
-  const content = JSON.stringify({
-    d: result
-  })
+  entities = entities.map(entity => toJSON(entity, mapping['service-namespace'], parsedUrl.parameters.$select))
+  let d
+  if (singleEntityAccess) {
+    d = entities[0]
+  } else {
+    d = { results: entities }
+  }
+  const content = JSON.stringify({ d })
   response.writeHead(200, {
     'Content-Type': jsonContentType,
     'Content-Length': content.length

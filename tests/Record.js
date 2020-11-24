@@ -73,6 +73,7 @@ Record.find = (request, filter) => {
   if (!filter) {
     return records
   }
+  return records.filter(gpf.createFilterFunction(filter))
 }
 
 module.exports = Record

@@ -26,6 +26,24 @@ describe('read', () => {
     assert.strictEqual(Object.keys(entity).length, 5)
   }
 
+  function isApplicationSetting (entity, { application, version, setting }) {
+    assert.strictEqual(entity.application, application)
+    assert.strictEqual(entity.version, version)
+    assert.strictEqual(entity.setting, setting)
+    assert.ok(entity.__metadata)
+    assert.strictEqual(entity.__metadata.type, 'test.ApplicationSetting')
+    assert.strictEqual(entity.__metadata.uri, `ApplicationSettings(application='${application}',version=${version},setting='${setting}')`)
+  }
+
+  function isValue (entity, { application, version, setting, index }) {
+    assert.strictEqual(entity.id, `${application}-${version}-${setting}-${index}`)
+    assert.strictEqual(entity.value, `${setting}-${index}`)
+    assert.ok(entity.__metadata)
+    assert.strictEqual(entity.__metadata.type, 'test.Value')
+    assert.strictEqual(entity.__metadata.uri, `Values('${application}-${version}-${setting}-${index}')`)
+    assert.strictEqual(Object.keys(entity).length, 4)
+  }
+
   describe('single entity', () => {
     test('RecordSet(\'abc\')', response => {
       assert.strictEqual(response.statusCode, 200)
@@ -49,34 +67,31 @@ describe('read', () => {
     test('ApplicationSettings(application=\'Example\',version=1,setting=\'Preview\')', response => {
       assert.strictEqual(response.statusCode, 200)
       const entity = JSON.parse(response.toString()).d
-      assert.strictEqual(entity.application, 'Example')
-      assert.strictEqual(entity.version, 1)
-      assert.strictEqual(entity.setting, 'Preview')
-      assert.ok(entity.__metadata)
-      assert.strictEqual(entity.__metadata.type, 'test.ApplicationSetting')
-      assert.strictEqual(entity.__metadata.uri, 'ApplicationSettings(application=\'Example\',version=1,setting=\'Preview\')')
-      assert.strictEqual(Object.keys(entity).length, 4)
+      isApplicationSetting(entity, {
+        application: 'Example',
+        version: 1,
+        setting: 'Preview'
+      })
     })
 
     describe('expand', () => {
       [0, 1, 2, 5].forEach(count =>
         test(`ApplicationSettings(application='Example',version=${count},setting='Preview')?$expand=values`, response => {
           const entity = JSON.parse(response.toString()).d
-          assert.strictEqual(entity.application, 'Example')
-          assert.strictEqual(entity.version, count)
-          assert.strictEqual(entity.setting, 'Preview')
-          assert.ok(entity.__metadata)
-          assert.strictEqual(entity.__metadata.type, 'test.ApplicationSetting')
-          assert.strictEqual(entity.__metadata.uri, `ApplicationSettings(application='Example',version=${count},setting='Preview')`)
+          isApplicationSetting(entity, {
+            application: 'Example',
+            version: count,
+            setting: 'Preview'
+          })
           const entities = entity.values
           assert.strictEqual(entities.length, count)
           entities.forEach((entity, index) => {
-            assert.strictEqual(entity.id, `Example-${count}-Preview-${index}`)
-            assert.strictEqual(entity.value, `Preview-${index}`)
-            assert.ok(entity.__metadata)
-            assert.strictEqual(entity.__metadata.type, 'test.Value')
-            assert.strictEqual(entity.__metadata.uri, `Values('Example-${count}-Preview-${index}')`)
-            assert.strictEqual(Object.keys(entity).length, 4)
+            isValue(entity, {
+              application: 'Example',
+              version: count,
+              setting: 'Preview',
+              index
+            })
           })
           assert.strictEqual(Object.keys(entity).length, 5)
         })
@@ -92,6 +107,39 @@ describe('read', () => {
       isRecord(entities[0], 0)
       isRecord(entities[3475], 3475)
     })
+
+    describe('paging', () => {
+      test('RecordSet?$top=10&$skip=0', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 10)
+        isRecord(entities[0], 0)
+        isRecord(entities[9], 9)
+      })
+
+      test('RecordSet?$top=50&$skip=10', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 50)
+        isRecord(entities[0], 10)
+        isRecord(entities[49], 59)
+      })
+
+      test('RecordSet?$top=10&$skip=10000', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 0)
+      })
+    })
+
+    describe('filtering', () => {
+      test('RecordSet?$filter=id eq \'abc\'', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 1)
+        isRecord(entities[0], 'abc')
+      })
+    })
   })
 
   describe('navigation properties', () => {
@@ -101,12 +149,12 @@ describe('read', () => {
         const entities = JSON.parse(response.toString()).d.results
         assert.strictEqual(entities.length, count)
         entities.forEach((entity, index) => {
-          assert.strictEqual(entity.id, `Example-${count}-Preview-${index}`)
-          assert.strictEqual(entity.value, `Preview-${index}`)
-          assert.ok(entity.__metadata)
-          assert.strictEqual(entity.__metadata.type, 'test.Value')
-          assert.strictEqual(entity.__metadata.uri, `Values('Example-${count}-Preview-${index}')`)
-          assert.strictEqual(Object.keys(entity).length, 4)
+          isValue(entity, {
+            application: 'Example',
+            version: count,
+            setting: 'Preview',
+            index
+          })
         })
       })
     )

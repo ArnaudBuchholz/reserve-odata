@@ -238,6 +238,17 @@ const scenarios = {
       }
     }
   },
+  'Products?$filter=creationdate ge DateTime\'2020-11-25T02:30:17\'': {
+    set: 'Products',
+    parameters: {
+      $filter: {
+        gte: [
+          { property: 'creationdate' },
+          1606271417000 /* converted to time to enable comparison */
+        ]
+      }
+    }
+  },
   'Products?$filter=Price invalid_op 100': 0,
   'Products?$filter=Price le 3.5 or': 0,
   'Products?$filter=Price le 3.5 or Price': 0,

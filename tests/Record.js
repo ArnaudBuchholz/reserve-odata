@@ -66,6 +66,7 @@ const records = []
 for (let number = 0; number < 4000; ++number) {
   records.push(new Record(Number(number).toString(16)))
 }
+records[3475]._modified = new Date('2020-04-03T00:00:00.0000Z')
 
 Record.read = (request, key) => records[parseInt(key, 16)]
 

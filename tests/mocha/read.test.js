@@ -139,6 +139,40 @@ describe('read', () => {
         assert.strictEqual(entities.length, 1)
         isRecord(entities[0], 'abc')
       })
+
+      test('RecordSet?$filter=id eq \'abc\' or id eq \'aaa\'', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 2)
+        isRecord(entities[0], 'aaa')
+        isRecord(entities[1], 'abc')
+      })
+
+      test('RecordSet?$filter=number eq 3475', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 1)
+        isRecord(entities[0], 3475)
+      })
+
+      test('RecordSet?$filter=modified lt DateTime\'2020-04-03T12:00:00\'', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 1)
+        isRecord(entities[0], 3475)
+      })
+
+      test('RecordSet?$filter=number gt 5000', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 0)
+      })
+
+      test('RecordSet?$filter=modified gt DateTime\'3020-04-03T12:00:00\'', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 0)
+      })
     })
   })
 

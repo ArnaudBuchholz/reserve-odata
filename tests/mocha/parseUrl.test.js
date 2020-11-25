@@ -5,11 +5,13 @@ const parseUrl = require('../../parseUrl')
 
 const scenarios = {
   RecordSet: {
-    set: 'RecordSet'
+    set: 'RecordSet',
+    parameters: {}
   },
   'RecordSet(\'abc\')': {
     set: 'RecordSet',
-    key: 'abc'
+    key: 'abc',
+    parameters: {}
   },
   'AppSetting(application=\'Example\',version=1,setting=\'Preview\')': {
     set: 'AppSetting',
@@ -17,17 +19,20 @@ const scenarios = {
       application: 'Example',
       version: 1,
       setting: 'Preview'
-    }
+    },
+    parameters: {}
   },
   'RecordSet(\'123\')/Tags': {
     set: 'RecordSet',
     key: '123',
-    navigationProperties: ['Tags']
+    navigationProperties: ['Tags'],
+    parameters: {}
   },
   'RecordSet(456)/Tags/Records': {
     set: 'RecordSet',
     key: 456,
-    navigationProperties: ['Tags', 'Records']
+    navigationProperties: ['Tags', 'Records'],
+    parameters: {}
   },
   'RecordSet?search=abc': {
     set: 'RecordSet',
@@ -60,10 +65,33 @@ const scenarios = {
     parameters: {
       $skip: 123,
       $top: 456,
+      $orderby: [{
+        property: 'Rating',
+        ascending: true
+      }, {
+        property: 'Priority',
+        ascending: true
+      }, {
+        property: 'Category/Name',
+        ascending: false
+      }]
+    }
+  },
+  'RecordSet?$orderby=Rating': {
+    set: 'RecordSet',
+    parameters: {
       $orderby: {
-        Rating: true,
-        Priority: true,
-        'Category/Name': false
+        property: 'Rating',
+        ascending: true
+      }
+    }
+  },
+  'RecordSet?$orderby=Category/Name desc': {
+    set: 'RecordSet',
+    parameters: {
+      $orderby: {
+        property: 'Category/Name',
+        ascending: false
       }
     }
   },
@@ -262,13 +290,17 @@ describe('parseUrl', () => {
       label = '(error) ' + label
     }
     it(label, () => {
-      let exceptionCaught
-      try {
+      if (!scenarios[url]) {
+        let exceptionCaught
+        try {
+          parseUrl(url)
+        } catch (e) {
+          exceptionCaught = true
+        }
+        assert.ok(exceptionCaught)
+      } else {
         assert.deepStrictEqual(parseUrl(url), scenarios[url])
-      } catch (e) {
-        exceptionCaught = true
       }
-      assert.ok(scenarios[url] || exceptionCaught)
     })
   })
 })

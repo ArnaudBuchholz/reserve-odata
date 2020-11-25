@@ -23,7 +23,7 @@ const toList = value => value.split(',')
 
 function parseFilter (string) {
   const tokens = []
-  string.replace(/\(|\)|\d+(\.\d*)?|'[^']+'|[\w0-9_]+(\/[\w0-9_]+)*/g, token => tokens.push(token))
+  string.replace(/\(|\)|\d+(\.\d*)?|'[^']+'|DateTime'[^']*'|[\w0-9_]+(\/[\w0-9_]+)*/g, token => tokens.push(token))
 
   const invalidFilter = () => { throw new Error('invalid filter') }
 
@@ -32,15 +32,29 @@ function parseFilter (string) {
     le: 'lte'
   }
 
+  const valueParser = /^(?:'([^']*)'|DateTime'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)'|(\d+(?:\.\d*)?))$/
+  const valueConverters = [
+    string => string,
+    datetime => new Date(`${datetime}.000Z`).getTime(),
+    toNumber
+  ]
+
   function parseCondition () {
     const [property, operator, rawValue] = tokens
     tokens.splice(0, 3)
-    let value
-    if (rawValue.startsWith('\'')) {
-      value = rawValue.substring(1, rawValue.length - 1)
-    } else {
-      value = toNumber(rawValue)
+    const parsedValue = valueParser.exec(rawValue)
+    if (!parsedValue) {
+      invalidFilter()
     }
+    let value
+    valueConverters.every((convert, index) => {
+      const capturedValue = parsedValue[index + 1]
+      if (capturedValue !== undefined) {
+        value = convert(capturedValue)
+        return false
+      }
+      return true
+    })
     if (['eq', 'ne', 'gt', 'ge', 'lt', 'le'].includes(operator)) {
       return { [operatorMapping[operator] || operator]: [{ property }, value] }
     }

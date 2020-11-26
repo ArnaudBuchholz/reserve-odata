@@ -80,19 +80,19 @@ const scenarios = {
   'RecordSet?$orderby=Rating': {
     set: 'RecordSet',
     parameters: {
-      $orderby: {
+      $orderby: [{
         property: 'Rating',
         ascending: true
-      }
+      }]
     }
   },
   'RecordSet?$orderby=Category/Name desc': {
     set: 'RecordSet',
     parameters: {
-      $orderby: {
+      $orderby: [{
         property: 'Category/Name',
         ascending: false
-      }
+      }]
     }
   },
   'RecordSet?$expand=tags,parent,children': {

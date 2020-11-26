@@ -94,22 +94,12 @@ const parameterParsers = {
   $select: toList,
   $orderby: value => value.split(',').reduce((orders, description, index) => {
     const [, field, order] = /([^ ]+)(?: (asc|desc))?/.exec(description)
-    if (index === 0) {
-      return {
-        property: field,
-        ascending: order !== 'desc'
-      }
-    } else {
-      if (index === 1) {
-        orders = [orders]
-      }
-      orders.push({
-        property: field,
-        ascending: order !== 'desc'
-      })
-      return orders
-    }
-  }, 0),
+    orders.push({
+      property: field,
+      ascending: order !== 'desc'
+    })
+    return orders
+  }, []),
   $filter: parseFilter
 }
 

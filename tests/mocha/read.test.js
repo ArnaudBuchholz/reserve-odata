@@ -174,6 +174,23 @@ describe('read', () => {
         assert.strictEqual(entities.length, 0)
       })
     })
+
+    describe('ordering', () => {
+      test('RecordSet?$orderby=modified&$top=1', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 1)
+        isRecord(entities[0], 3475)
+      })
+
+      test('RecordSet?$orderby=id desc&$filter=id eq \'abc\' or id eq \'aaa\'', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 2)
+        isRecord(entities[0], 'abc')
+        isRecord(entities[1], 'aaa')
+      })
+    })
   })
 
   describe('navigation properties', () => {

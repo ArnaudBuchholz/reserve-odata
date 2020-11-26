@@ -6,6 +6,7 @@ const Entity = require('./attributes/Entity')
 const NavigationProperty = require('./attributes/NavigationProperty')
 const parseUrl = require('./parseUrl')
 const toJSON = require('./toJSON')
+const gpf = require('gpf-js')
 
 const jsonContentType = 'application/json'
 
@@ -49,8 +50,25 @@ module.exports = async function ({ mapping, redirect, request, response }) {
     })
   }
   if (!singleEntityAccess) {
-    // $order
-    // $top && $skip
+    const orderby = parsedUrl.parameters.$orderby
+    if (orderby) {
+      debugger
+      const memberProperties = gpf.serial.get(entities[0]) // Assuming same type for all
+      const namedProperties = Object.keys(memberProperties).reduce((dictionary, member) => {
+        const property = memberProperties[member]
+        property.member = member
+        dictionary[property.name] = property
+        return dictionary
+      }, {})
+      orderby.forEach(orderItem => {
+        const property = namedProperties[orderItem.property]
+        orderItem.property = property.member
+        if (property.type === gpf.serial.types.string) {
+          orderItem.type = 'string'
+        }
+      })
+      entities.sort(gpf.createSortFunction(parsedUrl.parameters.$orderby))
+    }
     if (parsedUrl.parameters.$skip) {
       entities = entities.slice(parsedUrl.parameters.$skip)
     }

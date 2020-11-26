@@ -52,7 +52,6 @@ module.exports = async function ({ mapping, redirect, request, response }) {
   if (!singleEntityAccess) {
     const orderby = parsedUrl.parameters.$orderby
     if (orderby) {
-      debugger
       const memberProperties = gpf.serial.get(entities[0]) // Assuming same type for all
       const namedProperties = Object.keys(memberProperties).reduce((dictionary, member) => {
         const property = memberProperties[member]

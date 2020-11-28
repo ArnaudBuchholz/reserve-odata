@@ -9,6 +9,8 @@ const Sortable = require('../attributes/Sortable')
 const NavigationProperty = require('../attributes/NavigationProperty')
 const Tag = require('./Tag')
 
+const records = []
+
 class Record {
   get id () {
     return this._id
@@ -22,7 +24,7 @@ class Record {
     return this._name
   }
 
-  get number () {
+  get notSimplyNamedNumber () {
     return this._number
   }
 
@@ -30,10 +32,19 @@ class Record {
     return this._modified
   }
 
-  getChildren () {
+  getChildren (filter) {
+    if (this.number !== 0) {
+      return []
+    }
+    const results = records.slice(1)
+    // if (filter) {
+    //   return results.filter(gpf.createFilterFunction(filter))
+    // }
+    return results
   }
 
-  getParent () {
+  getParent (/* filter */) {
+    return records[this._parentId]
   }
 
   getTags () {
@@ -54,17 +65,19 @@ attribute(new gpf.attributes.Serializable())(Record, 'parentId')
 attribute(new gpf.attributes.Serializable())(Record, 'name')
 attribute(new Searchable())(Record, 'name')
 attribute(new Sortable())(Record, 'name')
-attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.integer, readOnly: false }))(Record, 'number')
+attribute(new gpf.attributes.Serializable({ name: 'number', type: gpf.serial.types.integer, readOnly: false }))(Record, 'notSimplyNamedNumber')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.datetime, readOnly: false }))(Record, 'modified')
 attribute(new Sortable())(Record, 'modified')
 attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren')
 attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
 attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
 
-const records = []
-
 for (let number = 0; number < 4000; ++number) {
-  records.push(new Record(Number(number).toString(16)))
+  const record = new Record(Number(number).toString(16))
+  if (number !== 0) {
+    record._parentId = 0
+  }
+  records.push(record)
 }
 records[3475]._modified = new Date('2020-04-03T00:00:00.0000Z')
 

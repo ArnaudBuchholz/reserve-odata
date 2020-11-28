@@ -17,13 +17,20 @@ describe('read', () => {
       number = key
     }
     assert.strictEqual(entity.id, id)
+    if (number !== 0) {
+      assert.strictEqual(entity.parentId, 0)
+    }
     assert.strictEqual(entity.name, id.toUpperCase())
     assert.strictEqual(entity.number, number)
     assert.notStrictEqual(entity.modified, undefined)
     assert.ok(entity.__metadata)
     assert.strictEqual(entity.__metadata.type, 'test.Record')
     assert.strictEqual(entity.__metadata.uri, `RecordSet('${id}')`)
-    assert.strictEqual(Object.keys(entity).length, 5)
+    if (number === 0) {
+      assert.strictEqual(Object.keys(entity).length, 5)
+    } else {
+      assert.strictEqual(Object.keys(entity).length, 6)
+    }
   }
 
   function isApplicationSetting (entity, { application, version, setting }) {
@@ -210,4 +217,15 @@ describe('read', () => {
       })
     )
   })
+
+/*
+  describe('combining', () => {
+    test('RecordSet(\'abc\')/parent/children?$orderby=id asc&$filter=id eq \'abc\' or id eq \'aaa\'&$top=1&$skip=0', response => {
+      assert.strictEqual(response.statusCode, 200)
+      const entities = JSON.parse(response.toString()).d.results
+      assert.strictEqual(entities.length, 1)
+      isRecord(entities[0], 'aaa')
+    })
+  })
+*/
 })

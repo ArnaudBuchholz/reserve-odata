@@ -10,10 +10,68 @@ const gpf = require('gpf-js')
 
 const jsonContentType = 'application/json'
 
-function getNavigationPropertyMethodName (entity, navigationPropertyName) {
+function getNavigationProperty (entity, navigationPropertyName) {
   const navigationProperty = NavigationProperty.list(entity)
     .filter(candidate => candidate.name === navigationPropertyName)[0]
-  return navigationProperty.getMemberName()
+  return navigationProperty
+}
+
+function getNamedProperties (entity) {
+  const memberProperties = gpf.serial.get(entity)
+  return Object.keys(memberProperties).reduce((dictionary, member) => {
+    const property = memberProperties[member]
+    property.member = member
+    dictionary[property.name] = property
+    return dictionary
+  }, {})
+}
+
+function mapFilterProperties (filter, EntityClass) {
+  const namedProperties = getNamedProperties(EntityClass)
+  function map (filterItem) {
+    if (filterItem.property) {
+      filterItem.property = namedProperties[filterItem.property].member
+    }
+    Object.keys(filterItem).forEach(property => {
+      const value = filterItem[property]
+      if (Array.isArray(value)) {
+        value.forEach(map)
+      } else if (typeof value === 'object') {
+        map(value)
+      }
+    })
+  }
+  if (filter) {
+    map(filter)
+  }
+  return filter
+}
+
+async function getEntities (request, parsedUrl, EntityClass) {
+  let entities
+  let singleEntityAccess = false
+  if (parsedUrl.key) {
+    entities = [await Entity.read(EntityClass, request, parsedUrl.key)]
+    if (parsedUrl.navigationProperties) {
+      entities = parsedUrl.navigationProperties.reduce((context, navigationPropertyName, index) => {
+        const navigationProperty = getNavigationProperty(context[0], navigationPropertyName) // Assuming same type for all
+        const memberName = navigationProperty.getMemberName()
+        let filter
+        if (index === parsedUrl.navigationProperties.length - 1) {
+          filter = mapFilterProperties(parsedUrl.parameters.$filter, navigationProperty.to)
+        }
+        return context.reduce((result, entity) => result.concat(entity[memberName](filter)), [])
+      }, entities)
+    } else {
+      singleEntityAccess = true
+    }
+  } else {
+    entities = await Entity.find(EntityClass, request, mapFilterProperties(parsedUrl.parameters.$filter, EntityClass))
+  }
+  return {
+    entities,
+    singleEntityAccess
+  }
 }
 
 module.exports = async function ({ mapping, redirect, request, response }) {
@@ -21,29 +79,10 @@ module.exports = async function ({ mapping, redirect, request, response }) {
     return metadata(...arguments)
   }
   const parsedUrl = parseUrl(redirect)
-  const EntityClass = mapping[$set2dpc][parsedUrl.set]
-  let entities
-  let singleEntityAccess = false
-  if (parsedUrl.key) {
-    entities = [await Entity.read(EntityClass, request, parsedUrl.key)]
-    if (parsedUrl.navigationProperties) {
-      entities = parsedUrl.navigationProperties.reduce((context, navigationPropertyName, index) => {
-        let filter
-        if (index === parsedUrl.navigationProperties.length - 1) {
-          filter = parsedUrl.parameters.$filter
-        }
-        const memberName = getNavigationPropertyMethodName(context[0], navigationPropertyName) // Assuming same type for all
-        return context.reduce((result, entity) => result.concat(entity[memberName](filter)), [])
-      }, entities)
-    } else {
-      singleEntityAccess = true
-    }
-  } else {
-    entities = await Entity.find(EntityClass, request, parsedUrl.parameters.$filter)
-  }
+  let { entities, singleEntityAccess } = await getEntities(request, parsedUrl, mapping[$set2dpc][parsedUrl.set])
   if (parsedUrl.parameters.$expand) {
     parsedUrl.parameters.$expand.forEach(navigationPropertyName => {
-      const memberName = getNavigationPropertyMethodName(entities[0], navigationPropertyName) // Assuming same type for all
+      const memberName = getNavigationProperty(entities[0], navigationPropertyName).getMemberName() // Assuming same type for all
       entities.forEach(entity => {
         entity[navigationPropertyName] = entity[memberName]()
       })
@@ -52,13 +91,7 @@ module.exports = async function ({ mapping, redirect, request, response }) {
   if (!singleEntityAccess) {
     const orderby = parsedUrl.parameters.$orderby
     if (orderby) {
-      const memberProperties = gpf.serial.get(entities[0]) // Assuming same type for all
-      const namedProperties = Object.keys(memberProperties).reduce((dictionary, member) => {
-        const property = memberProperties[member]
-        property.member = member
-        dictionary[property.name] = property
-        return dictionary
-      }, {})
+      const namedProperties = getNamedProperties(entities[0]) // Assuming same type for all
       orderby.forEach(orderItem => {
         const property = namedProperties[orderItem.property]
         orderItem.property = property.member

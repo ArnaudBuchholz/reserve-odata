@@ -33,13 +33,13 @@ class Record {
   }
 
   getChildren (filter) {
-    if (this.number !== 0) {
+    if (this._number !== 0) {
       return []
     }
     const results = records.slice(1)
-    // if (filter) {
-    //   return results.filter(gpf.createFilterFunction(filter))
-    // }
+    if (filter) {
+      return results.filter(gpf.createFilterFunction(filter))
+    }
     return results
   }
 

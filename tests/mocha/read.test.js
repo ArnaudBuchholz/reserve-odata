@@ -216,9 +216,21 @@ describe('read', () => {
         })
       })
     )
+
+    test('RecordSet(\'abc\')/parent', response => {
+      assert.strictEqual(response.statusCode, 200)
+      const entity = JSON.parse(response.toString()).d
+      isRecord(entity, 0)
+    })
+
+    test('RecordSet(\'abc\')/parent/children?$orderby=number&$top=10', response => {
+      assert.strictEqual(response.statusCode, 200)
+      const entities = JSON.parse(response.toString()).d.results
+      assert.strictEqual(entities.length, 10)
+      isRecord(entities[0], 1)
+    })
   })
 
-/*
   describe('combining', () => {
     test('RecordSet(\'abc\')/parent/children?$orderby=id asc&$filter=id eq \'abc\' or id eq \'aaa\'&$top=1&$skip=0', response => {
       assert.strictEqual(response.statusCode, 200)
@@ -227,5 +239,4 @@ describe('read', () => {
       isRecord(entities[0], 'aaa')
     })
   })
-*/
 })

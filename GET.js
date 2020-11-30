@@ -60,6 +60,7 @@ async function getEntities (request, parsedUrl, EntityClass) {
         if (index === parsedUrl.navigationProperties.length - 1) {
           filter = mapFilterProperties(parsedUrl.parameters.$filter, navigationProperty.to)
         }
+        singleEntityAccess = navigationProperty.multiplicity !== '*'
         return context.reduce((result, entity) => result.concat(entity[memberName](filter)), [])
       }, entities)
     } else {
@@ -99,7 +100,7 @@ module.exports = async function ({ mapping, redirect, request, response }) {
           orderItem.type = 'string'
         }
       })
-      entities.sort(gpf.createSortFunction(parsedUrl.parameters.$orderby))
+      entities = [].concat(entities).sort(gpf.createSortFunction(parsedUrl.parameters.$orderby))
     }
     if (parsedUrl.parameters.$skip) {
       entities = entities.slice(parsedUrl.parameters.$skip)

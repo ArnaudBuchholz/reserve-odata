@@ -48,11 +48,11 @@ Entity.get = async (EntityClass, request, key) => {
   const keys = Object.keys(gpf.attributes.get(EntityClass, Key))
   let filter
   if (keys.length === 1) {
-    filter = { eq: [ { property: keys[0] }, key ] }
+    filter = { eq: [{ property: keys[0] }, key] }
   } else {
     filter = mapFilterProperties({
       and: Object.keys(key).map(property => {
-        return { eq: [ { property }, key[property] ] }
+        return { eq: [{ property }, key[property]] }
       })
     }, EntityClass)
   }

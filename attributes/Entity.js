@@ -41,7 +41,7 @@ Entity.names = EntityClass => {
   }
 }
 
-Entity.get = (EntityClass, request, key) => {
+Entity.get = async (EntityClass, request, key) => {
   if (EntityClass.get) {
     return EntityClass.get(request, key)
   }
@@ -56,7 +56,7 @@ Entity.get = (EntityClass, request, key) => {
       })
     }, EntityClass)
   }
-  return Entity.list(EntityClass, request, filter)
+  return (await Entity.list(EntityClass, request, filter))[0]
 }
 
 Entity.list = async (EntityClass, request, filter) => {

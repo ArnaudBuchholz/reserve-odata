@@ -22,7 +22,7 @@ class AppSetting {
     return this._setting
   }
 
-  getValues (/* filter */) {
+  getValues () {
     const result = []
     for (let index = 0; index < this._version; ++index) {
       const value = new Value()
@@ -53,6 +53,13 @@ attribute(new Key())(AppSetting, 'setting')
 attribute(new Filterable())(AppSetting, 'setting')
 attribute(new NavigationProperty('values', Value, '*'))(AppSetting, 'getValues')
 
-AppSetting.read = (request, key) => new AppSetting(key)
+const entities = [
+  new AppSetting({ application: 'Example', version: 0, setting: 'Preview' }),
+  new AppSetting({ application: 'Example', version: 1, setting: 'Preview' }),
+  new AppSetting({ application: 'Example', version: 2, setting: 'Preview' }),
+  new AppSetting({ application: 'Example', version: 5, setting: 'Preview' })
+]
+
+AppSetting.list = async request => entities
 
 module.exports = AppSetting

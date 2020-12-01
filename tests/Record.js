@@ -9,7 +9,7 @@ const Sortable = require('../attributes/Sortable')
 const NavigationProperty = require('../attributes/NavigationProperty')
 const Tag = require('./Tag')
 
-const records = []
+const entities = []
 
 class Record {
   get id () {
@@ -36,15 +36,15 @@ class Record {
     if (this._number !== 0) {
       return []
     }
-    const results = records.slice(1)
+    const results = entities.slice(1)
     if (filter) {
       return results.filter(gpf.createFilterFunction(filter))
     }
     return results
   }
 
-  getParent (/* filter */) {
-    return records[this._parentId]
+  getParent () {
+    return entities[this._parentId]
   }
 
   getTags () {
@@ -77,17 +77,17 @@ for (let number = 0; number < 4000; ++number) {
   if (number !== 0) {
     record._parentId = 0
   }
-  records.push(record)
+  entities.push(record)
 }
-records[3475]._modified = new Date('2020-04-03T00:00:00.0000Z')
+entities[3475]._modified = new Date('2020-04-03T00:00:00.0000Z')
 
-Record.read = (request, key) => records[parseInt(key, 16)]
+Record.get = (request, key) => entities[parseInt(key, 16)]
 
-Record.find = (request, filter) => {
+Record.list = (request, filter) => {
   if (!filter) {
-    return records
+    return entities
   }
-  return records.filter(gpf.createFilterFunction(filter))
+  return entities.filter(gpf.createFilterFunction(filter))
 }
 
 module.exports = Record

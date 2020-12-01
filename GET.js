@@ -6,9 +6,8 @@ const Entity = require('./attributes/Entity')
 const NavigationProperty = require('./attributes/NavigationProperty')
 const parseUrl = require('./parseUrl')
 const toJSON = require('./toJSON')
+const { getNamedProperties, mapFilterProperties } = require('./util')
 const gpf = require('gpf-js')
-
-const jsonContentType = 'application/json'
 
 function getNavigationProperty (entity, navigationPropertyName) {
   const navigationProperty = NavigationProperty.list(entity)
@@ -16,42 +15,11 @@ function getNavigationProperty (entity, navigationPropertyName) {
   return navigationProperty
 }
 
-function getNamedProperties (entity) {
-  const memberProperties = gpf.serial.get(entity)
-  return Object.keys(memberProperties).reduce((dictionary, member) => {
-    const property = memberProperties[member]
-    property.member = member
-    dictionary[property.name] = property
-    return dictionary
-  }, {})
-}
-
-function mapFilterProperties (filter, EntityClass) {
-  const namedProperties = getNamedProperties(EntityClass)
-  function map (filterItem) {
-    if (filterItem.property) {
-      filterItem.property = namedProperties[filterItem.property].member
-    }
-    Object.keys(filterItem).forEach(property => {
-      const value = filterItem[property]
-      if (Array.isArray(value)) {
-        value.forEach(map)
-      } else if (typeof value === 'object') {
-        map(value)
-      }
-    })
-  }
-  if (filter) {
-    map(filter)
-  }
-  return filter
-}
-
 async function getEntities (request, parsedUrl, EntityClass) {
   let entities
   let singleEntityAccess = false
   if (parsedUrl.key) {
-    entities = [await Entity.read(EntityClass, request, parsedUrl.key)]
+    entities = [await Entity.get(EntityClass, request, parsedUrl.key)]
     if (parsedUrl.navigationProperties) {
       entities = parsedUrl.navigationProperties.reduce((context, navigationPropertyName, index) => {
         const navigationProperty = getNavigationProperty(context[0], navigationPropertyName) // Assuming same type for all
@@ -67,7 +35,7 @@ async function getEntities (request, parsedUrl, EntityClass) {
       singleEntityAccess = true
     }
   } else {
-    entities = await Entity.find(EntityClass, request, mapFilterProperties(parsedUrl.parameters.$filter, EntityClass))
+    entities = await Entity.list(EntityClass, request, mapFilterProperties(parsedUrl.parameters.$filter, EntityClass))
   }
   return {
     entities,
@@ -118,7 +86,7 @@ module.exports = async function ({ mapping, redirect, request, response }) {
   }
   const content = JSON.stringify({ d })
   response.writeHead(200, {
-    'Content-Type': jsonContentType,
+    'Content-Type': 'application/json',
     'Content-Length': content.length
   })
   response.end(content)

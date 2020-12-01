@@ -2,6 +2,8 @@
 
 const gpf = require('gpf-js')
 const attribute = gpf.attributes.decorator
+const Key = require('./Key')
+const { mapFilterProperties } = require('../util')
 
 class Entity extends gpf.attributes.Attribute {
   get name () {
@@ -39,7 +41,29 @@ Entity.names = EntityClass => {
   }
 }
 
-Entity.read = (EntityClass, request, key) => EntityClass.read(request, key)
-Entity.find = (EntityClass, request, filter) => EntityClass.find(request, filter)
+Entity.get = (EntityClass, request, key) => {
+  if (EntityClass.get) {
+    return EntityClass.get(request, key)
+  }
+  const keys = Object.keys(gpf.attributes.get(EntityClass, Key))
+  let filter
+  if (keys.length === 1) {
+    filter = { eq: [ { property: keys[0] }, key ] }
+  } else {
+    filter = mapFilterProperties({
+      and: Object.keys(key).map(property => {
+        return { eq: [ { property }, key[property] ] }
+      })
+    }, EntityClass)
+  }
+  return Entity.list(EntityClass, request, filter)
+}
+
+Entity.list = async (EntityClass, request, filter) => {
+  if (filter && EntityClass.list.length === 1) {
+    return (await EntityClass.list(request)).filter(gpf.createFilterFunction(filter))
+  }
+  return EntityClass.list(request, filter)
+}
 
 module.exports = Entity

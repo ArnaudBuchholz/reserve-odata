@@ -16,12 +16,15 @@ function getNavigationProperty (entity, navigationPropertyName) {
 }
 
 async function getEntities (request, parsedUrl, EntityClass) {
+  if (!EntityClass) {
+    return {}
+  }
   let entities
   let singleEntityAccess = false
   if (parsedUrl.key) {
     const entity = await Entity.get(EntityClass, request, parsedUrl.key)
     if (!entity) {
-      return { entities: [], singleEntityAccess: true }
+      return {}
     }
     entities = [entity]
     if (parsedUrl.navigationProperties) {
@@ -53,7 +56,7 @@ module.exports = async function ({ mapping, redirect, request, response }) {
   }
   const parsedUrl = parseUrl(redirect)
   let { entities, singleEntityAccess } = await getEntities(request, parsedUrl, mapping[$set2dpc][parsedUrl.set])
-  if (singleEntityAccess && !entities.length) {
+  if (singleEntityAccess === undefined) {
     response.writeHead(404, {
       'Content-Type': 'application/json',
       'Content-Length': 2

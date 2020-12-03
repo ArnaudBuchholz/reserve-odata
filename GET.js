@@ -19,7 +19,11 @@ async function getEntities (request, parsedUrl, EntityClass) {
   let entities
   let singleEntityAccess = false
   if (parsedUrl.key) {
-    entities = [await Entity.get(EntityClass, request, parsedUrl.key)]
+    const entity = await Entity.get(EntityClass, request, parsedUrl.key)
+    if (!entity) {
+      return { entities: [], singleEntityAccess: true }
+    }
+    entities = [entity]
     if (parsedUrl.navigationProperties) {
       entities = parsedUrl.navigationProperties.reduce((context, navigationPropertyName, index) => {
         const navigationProperty = getNavigationProperty(context[0], navigationPropertyName) // Assuming same type for all
@@ -49,6 +53,14 @@ module.exports = async function ({ mapping, redirect, request, response }) {
   }
   const parsedUrl = parseUrl(redirect)
   let { entities, singleEntityAccess } = await getEntities(request, parsedUrl, mapping[$set2dpc][parsedUrl.set])
+  if (singleEntityAccess && !entities.length) {
+    response.writeHead(404, {
+      'Content-Type': 'application/json',
+      'Content-Length': 2
+    })
+    response.end('{}')
+    return
+  }
   if (parsedUrl.parameters.$expand) {
     parsedUrl.parameters.$expand.forEach(navigationPropertyName => {
       const memberName = getNavigationProperty(entities[0], navigationPropertyName).getMemberName() // Assuming same type for all

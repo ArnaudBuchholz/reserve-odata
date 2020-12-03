@@ -81,10 +81,6 @@ describe('read', () => {
       })
     })
 
-    test('RecordSet(\'9999\')', response => {
-      assert.strictEqual(response.statusCode, 404)
-    })
-
     describe('expand', () => {
       [0, 1, 2, 5].forEach(count =>
         test(`ApplicationSettings(application='Example',version=${count},setting='Preview')?$expand=values`, response => {
@@ -107,6 +103,16 @@ describe('read', () => {
           assert.strictEqual(Object.keys(entity).length, 5)
         })
       )
+    })
+
+    describe('errors', () => {
+      test('RecordSet(\'9999\')', response => {
+        assert.strictEqual(response.statusCode, 404)
+      })
+
+      test('UnknownSet(\'9999\')', response => {
+        assert.strictEqual(response.statusCode, 404)
+      })
     })
   })
 

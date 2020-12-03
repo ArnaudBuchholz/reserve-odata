@@ -81,6 +81,10 @@ describe('read', () => {
       })
     })
 
+    test('RecordSet(\'9999\')', response => {
+      assert.strictEqual(response.statusCode, 404)
+    })
+
     describe('expand', () => {
       [0, 1, 2, 5].forEach(count =>
         test(`ApplicationSettings(application='Example',version=${count},setting='Preview')?$expand=values`, response => {

@@ -60,6 +60,14 @@ const scenarios = {
       $top: 10
     }
   },
+  'RecordSet?$top=10&$skip=': 0,
+  'RecordSet?$top=10&$skip=a': 0,
+  'RecordSet?$top=10&$skip=-1': 0,
+  'RecordSet?$top=10&$skip=-1a': 0,
+  'RecordSet?$top=&$skip=0': 0,
+  'RecordSet?$top=a&$skip=0': 0,
+  'RecordSet?$top=-1&$skip=0': 0,
+  'RecordSet?$top=-1a&$skip=0': 0,
   'RecordSet?$skip=123&$orderby=Rating asc,Priority,Category/Name desc&$top=456': {
     set: 'RecordSet',
     parameters: {
@@ -95,6 +103,10 @@ const scenarios = {
       }]
     }
   },
+  'RecordSet?$orderby=Category/Name abc': 0,
+  'RecordSet?$orderby=Category/Name dec': 0,
+  'RecordSet?$orderby=Category/Name ascending': 0,
+  'RecordSet?$orderby=Category/Name not even close': 0,
   'RecordSet?$expand=tags,parent,children': {
     set: 'RecordSet',
     parameters: {
@@ -291,13 +303,7 @@ describe('parseUrl', () => {
     }
     it(label, () => {
       if (!scenarios[url]) {
-        let exceptionCaught
-        try {
-          parseUrl(url)
-        } catch (e) {
-          exceptionCaught = true
-        }
-        assert.ok(exceptionCaught)
+        assert.throws(() => parseUrl(url))
       } else {
         assert.deepStrictEqual(parseUrl(url), scenarios[url])
       }

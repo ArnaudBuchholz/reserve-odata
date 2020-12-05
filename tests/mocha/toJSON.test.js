@@ -69,6 +69,12 @@ describe('toJSON', () => {
     assert.strictEqual(Object.keys(json).length, 3)
   })
 
+  it('fails on invalid $select', () => {
+    const record = new Record('d93')
+
+    assert.throws(() => toJSON(record, 'test', ['id', 'not_a_property']))
+  })
+
   it('supports navigationProperties (single)', () => {
     const record = new Record('d93')
     record.parent = new Record('abc')

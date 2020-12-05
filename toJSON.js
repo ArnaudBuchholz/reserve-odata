@@ -16,8 +16,12 @@ function getKeys (entity) {
   return Object.keys(gpf.attributes.get(EntityClass, Key)).map(name => serialProperties[name])
 }
 
-module.exports = function toJSON (entity, namespace, select) {
+module.exports = function toJSON (entity, namespace, select = []) {
+  let propertiesFoundInSelect = 0
   const json = gpf.serial.toRaw(entity, (value, property) => {
+    if (select.includes(property.name)) {
+      ++propertiesFoundInSelect
+    }
     if (gpf.serial.types.datetime === property.type) {
       if (value) {
         return '/Date(' + value.getTime() + ')/'
@@ -28,7 +32,10 @@ module.exports = function toJSON (entity, namespace, select) {
   })
 
   // While waiting for https://github.com/ArnaudBuchholz/gpf-js/issues/332
-  if (select) {
+  if (select.length) {
+    if (propertiesFoundInSelect !== select.length) {
+      throw new Error('Unknown select property')
+    }
     Object.keys(json).forEach(property => {
       if (!select.includes(property)) {
         delete json[property]

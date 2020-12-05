@@ -87,16 +87,23 @@ function parseFilter (string) {
   return chain(parseAndCond, 'or')
 }
 
+const toPositiveNumber = value => {
+  if (!value.match(/^\d+$/)) {
+    throw new Error('Invalid positive number')
+  }
+  return toNumber(value)
+}
+
 const parameterParsers = {
-  $top: toNumber,
-  $skip: toNumber,
+  $top: toPositiveNumber,
+  $skip: toPositiveNumber,
   $expand: toList,
   $select: toList,
   $orderby: value => value.split(',').reduce((orders, description, index) => {
-    const [, field, order] = /([^ ]+)(?: (asc|desc))?/.exec(description)
+    const [, field, order] = /^([^ ]+)(| asc| desc)?$/.exec(description)
     orders.push({
       property: field,
-      ascending: order !== 'desc'
+      ascending: order !== ' desc'
     })
     return orders
   }, []),

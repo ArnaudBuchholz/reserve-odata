@@ -14,7 +14,7 @@ module.exports = {
   async validate (mapping) {
   },
   method: Object.keys(handlers),
-  async redirect ({ mapping, redirect, request, response }) {
+  async redirect ({ mapping, request, response }) {
     if (!mapping[$dpc]) {
       mapping[$dpc] = await mapping['data-provider-classes']()
       mapping[$set2dpc] = mapping[$dpc].reduce((mapping, EntityClass) => {
@@ -23,6 +23,14 @@ module.exports = {
         return mapping
       }, {})
     }
-    return handlers[request.method](...arguments)
+    try {
+      return await handlers[request.method](...arguments)
+    } catch (e) {
+      response.writeHead(500, {
+        'Content-Type': 'application/json',
+        'Content-Length': 2
+      })
+      response.end('{}')
+    }
   }
 }

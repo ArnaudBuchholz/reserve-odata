@@ -4,6 +4,8 @@ const assert = require('assert')
 const handle = require('./handle.js')
 
 const test = (url, callback) => it(url, () => handle({ request: url }).then(callback))
+const notFound = url => it(url, () => handle({ request: url }).then(response => assert.strictEqual(response.statusCode, 404)))
+const fail = url => it(url, () => handle({ request: url }).then(response => assert.strictEqual(response.statusCode, 500)))
 
 describe('read', () => {
   function isRecord (entity, key) {
@@ -106,13 +108,12 @@ describe('read', () => {
     })
 
     describe('errors', () => {
-      test('RecordSet(\'9999\')', response => {
-        assert.strictEqual(response.statusCode, 404)
-      })
-
-      test('UnknownSet(\'9999\')', response => {
-        assert.strictEqual(response.statusCode, 404)
-      })
+      notFound('RecordSet(\'9999\')')
+      notFound('RecordSet(whatever=\'abc\')')
+      notFound('ApplicationSettings(whatever=\'9999\')')
+      notFound('UnknownSet(\'9999\')')
+      fail('RecordSet(\'abc\')?$expand=not_a_navigation_property')
+      fail('RecordSet(\'abc\')?$select=not_a_property')
     })
   })
 
@@ -146,6 +147,13 @@ describe('read', () => {
         assert.strictEqual(response.statusCode, 200)
         const entities = JSON.parse(response.toString()).d.results
         assert.strictEqual(entities.length, 0)
+      })
+
+      describe('errors', () => {
+        fail('RecordSet?$top=&$skip=0')
+        fail('RecordSet?$top=10&$skip=-1')
+        fail('RecordSet?$top=a1&$skip=0')
+        fail('RecordSet?$top=10&$skip=125-')
       })
     })
 
@@ -190,6 +198,11 @@ describe('read', () => {
         const entities = JSON.parse(response.toString()).d.results
         assert.strictEqual(entities.length, 0)
       })
+
+      describe('errors', () => {
+        fail('RecordSet?$filter=id eq')
+        fail('RecordSet?$filter=not_a_property eq \'abc\'')
+      })
     })
 
     describe('ordering', () => {
@@ -206,6 +219,11 @@ describe('read', () => {
         assert.strictEqual(entities.length, 2)
         isRecord(entities[0], 'abc')
         isRecord(entities[1], 'aaa')
+      })
+
+      describe('errors', () => {
+        fail('RecordSet?$orderby=not_a_property')
+        fail('RecordSet?$orderby=id dec')
       })
     })
   })
@@ -238,6 +256,11 @@ describe('read', () => {
       const entities = JSON.parse(response.toString()).d.results
       assert.strictEqual(entities.length, 10)
       isRecord(entities[0], 1)
+    })
+
+    describe('errors', () => {
+      fail('RecordSet(\'abc\')/ancestor')
+      fail('RecordSet(\'abc\')/parent/descendants')
     })
   })
 

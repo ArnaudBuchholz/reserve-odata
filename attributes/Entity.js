@@ -50,11 +50,16 @@ Entity.get = async (EntityClass, request, key) => {
   if (keys.length === 1) {
     filter = { eq: [{ property: keys[0] }, key] }
   } else {
-    filter = mapFilterProperties({
-      and: Object.keys(key).map(property => {
-        return { eq: [{ property }, key[property]] }
-      })
-    }, EntityClass)
+    try {
+      filter = mapFilterProperties({
+        and: Object.keys(key).map(property => {
+          return { eq: [{ property }, key[property]] }
+        })
+      }, EntityClass)
+    } catch (e) {
+      // Key not mappable to a valid filter => 404
+      return
+    }
   }
   return (await Entity.list(EntityClass, request, filter))[0]
 }

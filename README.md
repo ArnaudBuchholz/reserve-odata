@@ -23,7 +23,7 @@ Simple [ODATA v2](https://www.odata.org/documentation/odata-version-2-0/) handle
   "mappings": [{
     "match": "\\/api\\/odata\\/(.*)",
     "odata": "$1",
-    "data-provider-factory": "./dpf.js"
+    "data-provider-classes": "./dpc.js"
   }]
 }
 ```
@@ -34,21 +34,22 @@ Simple [ODATA v2](https://www.odata.org/documentation/odata-version-2-0/) handle
 |---|---|---|
 | `service-namespace` | `'ODATANS'` | Service namespace |
 | `use-sap-extension` | `false` | `true` to insert SAP specific information in the $metadata |
-| `data-provider-classes` | function or string | Asynchronous function that returns the data provider classes |
+| `data-provider-classes` | function or string | Asynchronous function (or module exporting an asynchronous function) returning the list of data provider classes (see below) |
 
 ## Data Provider Class
 
-Each EntityClass must be decorated with specific attributes to control the way the entity is serialized.
+Entities definition and records are made available through classes.
+The class not only defines the entity structure (name and members) but also it gives information about linked entities (through navigation properties).
+It also contains methods to access the entities.
 
-It must also offer the following static members :
+### `async EntityClass.get (request, key) : object`
 
-### `async EntityClass.get (request, keys) : object`
+Retreive one entity based on its key.
+Depending on the entity definition, there might be one or multiple fields in the key.
+When only one field is composing the key, the key value is passed.
+Otherwise, a dictionary mapping property to the expected value is passed.
 
-optional (if not existing, implementation will use EntityClass.list)
-
-Might be changed thanks to a class attribute
-
-Get an entity using its key
+This method is optional: if not existing, the implementation will use `EntityClass.list`
 
 ### `async EntityClass.list (request, filters) : []`
 

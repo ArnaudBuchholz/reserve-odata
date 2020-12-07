@@ -1,11 +1,7 @@
 'use strict'
 
 const assert = require('assert')
-const handle = require('./handle.js')
-
-const test = (url, callback) => it(url, () => handle({ request: url }).then(callback))
-const notFound = url => it(url, () => handle({ request: url }).then(response => assert.strictEqual(response.statusCode, 404)))
-const fail = url => it(url, () => handle({ request: url }).then(response => assert.strictEqual(response.statusCode, 500)))
+const { test, notFound, fail, reset } = require('./handle.js')
 
 describe('read', () => {
   function isRecord (entity, key) {
@@ -52,6 +48,8 @@ describe('read', () => {
     assert.strictEqual(entity.__metadata.uri, `Values('${application}-${version}-${setting}-${index}')`)
     assert.strictEqual(Object.keys(entity).length, 4)
   }
+
+  before(reset)
 
   describe('single entity', () => {
     test('RecordSet(\'abc\')', response => {

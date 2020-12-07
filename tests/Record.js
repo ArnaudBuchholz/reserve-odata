@@ -72,14 +72,17 @@ attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren'
 attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
 attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
 
-for (let number = 0; number < 4000; ++number) {
-  const record = new Record(Number(number).toString(16))
-  if (number !== 0) {
-    record._parentId = 0
+Record.reset = () => {
+  entities.length = 0
+  for (let number = 0; number < 4000; ++number) {
+    const record = new Record(Number(number).toString(16))
+    if (number !== 0) {
+      record._parentId = 0
+    }
+    entities.push(record)
   }
-  entities.push(record)
+  entities[3475]._modified = new Date('2020-04-03T00:00:00.0000Z')
 }
-entities[3475]._modified = new Date('2020-04-03T00:00:00.0000Z')
 
 Record.get = (request, key) => entities[parseInt(key, 16)]
 
@@ -88,6 +91,15 @@ Record.list = (request, filter) => {
     return entities
   }
   return entities.filter(gpf.createFilterFunction(filter))
+}
+
+Record.delete = (request, key) => {
+  const index = parseInt(key, 16)
+  if (entities[index]) {
+    entities[index] = undefined
+    return true
+  }
+  return false
 }
 
 module.exports = Record

@@ -71,4 +71,11 @@ Entity.list = async (EntityClass, request, filter) => {
   return EntityClass.list(request, filter)
 }
 
+Entity.delete = async (EntityClass, request, key) => {
+  if (EntityClass.delete) {
+    return EntityClass.delete(request, key)
+  }
+  throw new Error('Not implemented')
+}
+
 module.exports = Entity

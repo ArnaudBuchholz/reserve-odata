@@ -4,11 +4,10 @@ const { $dpc, $set2dpc } = require('./symbols')
 const Entity = require('./attributes/Entity')
 
 const handlers = {}
-handlers.GET = require('./GET')
-handlers.POST = async function ({ redirect, request, response }) {
-}
-handlers.DELETE = async function ({ cache, redirect, response }) {
-}
+const methods = ['GET', 'DELETE']
+methods.forEach(method => {
+  handlers[method] = require(`./${method}`)
+})
 
 module.exports = {
   schema: {
@@ -35,7 +34,7 @@ module.exports = {
       return mapping
     }, {})
   },
-  method: Object.keys(handlers),
+  method: methods,
   async redirect ({ mapping, request, response }) {
     try {
       return await handlers[request.method](...arguments)

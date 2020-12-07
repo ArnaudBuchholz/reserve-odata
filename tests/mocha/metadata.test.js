@@ -2,7 +2,7 @@
 
 const assert = require('assert')
 const { parseStringPromise } = require('xml2js')
-const handle = require('./handle.js')
+const { handle } = require('./handle.js')
 const Tag = require('../Tag')
 
 const getLocalName = name => {

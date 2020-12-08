@@ -53,12 +53,8 @@ const test = (method, url, callback) => {
   it(`${method} ${url}`, () => handle({ request: { method, url } }).then(callback))
 }
 
-const notFound = (method, url) => {
-  if (url === undefined) {
-    url = method
-    method = 'GET'
-  }
-  test(method, url, response => assert.strictEqual(response.statusCode, 404))
+const notFound = (url) => {
+  test('GET', url, response => assert.strictEqual(response.statusCode, 404))
 }
 
 const fail = (method, url) => {

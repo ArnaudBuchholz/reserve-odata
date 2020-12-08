@@ -81,6 +81,13 @@ describe('read', () => {
       })
     })
 
+    test('TagSet(\'new\')', response => {
+      assert.strictEqual(response.statusCode, 200)
+      const entity = JSON.parse(response.toString()).d
+      assert.strictEqual(entity.name, 'new')
+      assert.strictEqual(entity.count, 0)
+    })
+
     describe('expand', () => {
       [0, 1, 2, 5].forEach(count =>
         test(`ApplicationSettings(application='Example',version=${count},setting='Preview')?$expand=values`, response => {
@@ -192,6 +199,12 @@ describe('read', () => {
       })
 
       test('RecordSet?$filter=modified gt DateTime\'3020-04-03T12:00:00\'', response => {
+        assert.strictEqual(response.statusCode, 200)
+        const entities = JSON.parse(response.toString()).d.results
+        assert.strictEqual(entities.length, 0)
+      })
+
+      test('RecordSet?$filter=id eq \'abc\' and number eq 1234 or id eq \'aaa\' and number eq 4567', response => {
         assert.strictEqual(response.statusCode, 200)
         const entities = JSON.parse(response.toString()).d.results
         assert.strictEqual(entities.length, 0)

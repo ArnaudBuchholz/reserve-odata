@@ -1,10 +1,10 @@
 'use strict'
 
 const assert = require('assert')
-const { handle, test, reset } = require('./handle.js')
+const { handle, test, reset, fail } = require('./handle.js')
 
 describe('delete', () => {
-  beforeEach(reset)
+  before(reset)
 
   test('DELETE', 'RecordSet(\'abc\')', response => {
     assert.strictEqual(response.statusCode, 204)
@@ -12,5 +12,13 @@ describe('delete', () => {
       .then(response => {
         assert.strictEqual(response.statusCode, 404)
       })
+  })
+
+  describe('errors', () => {
+    fail('DELETE', 'RecordSet')
+    fail('DELETE', 'RecordSet(\'abc\')')
+    fail('DELETE', 'RecordSet(\'abd\')?$expand=abc')
+    fail('DELETE', 'UnknownSet(\'abc\')')
+    fail('DELETE', 'ApplicationSettings(application=\'Example\',version=1,setting=\'Preview\')')
   })
 })

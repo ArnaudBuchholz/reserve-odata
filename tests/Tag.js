@@ -12,7 +12,7 @@ class Tag {
   }
 
   get count () {
-    return this._records.length
+    return 0
   }
 
   get modified () {
@@ -21,6 +21,7 @@ class Tag {
 
   constructor (name) {
     this._name = name
+    this._modified = new Date()
   }
 }
 
@@ -30,5 +31,14 @@ attribute(new Searchable())(Tag, 'name')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.integer, readOnly: false }))(Tag, 'count')
 attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.datetime, readOnly: false }))(Tag, 'modified')
 attribute(new Sortable())(Tag, 'modified')
+
+const entities = [
+  new Tag('new'),
+  new Tag('obsolete')
+]
+
+Tag.list = request => {
+  return entities
+}
 
 module.exports = Tag

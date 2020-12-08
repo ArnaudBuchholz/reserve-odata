@@ -11,7 +11,7 @@ methods.forEach(method => {
 
 module.exports = {
   schema: {
-    [$dpc]: ['function', 'string'],
+    'data-provider-classes': ['function', 'string'],
     'use-sap-extension': {
       type: 'boolean',
       defaultValue: false
@@ -22,11 +22,12 @@ module.exports = {
     }
   },
   async validate (mapping) {
-    const dpc = mapping[$dpc]
-    if (typeof dpc === 'string') {
-      mapping[$dpc] = await require(dpc)()
+    const dpc = mapping['data-provider-classes']
+    /* istanbul ignore else */
+    if (typeof dpc === 'function') {
+      mapping[$dpc] = await dpc()
     } else {
-      mapping[$dpc] = await mapping['data-provider-classes']()
+      mapping[$dpc] = await require(dpc)()
     }
     mapping[$set2dpc] = mapping[$dpc].reduce((mapping, EntityClass) => {
       const { setName } = Entity.names(EntityClass)

@@ -9,6 +9,9 @@ module.exports = async function ({ mapping, redirect, request, response }) {
   if (!parsedUrl.key) {
     throw new Error('Missing key')
   }
+  if (Object.keys(parsedUrl.parameters).some(parameter => parameter.startsWith('$'))) {
+    throw new Error('Unsupported parameter')
+  }
   const EntityClass = mapping[$set2dpc][parsedUrl.set]
   if (!EntityClass) {
     throw new Error('Unkown entity class')

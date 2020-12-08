@@ -22,8 +22,6 @@ const mapFilterProperties = (filter, EntityClass) => {
       const value = filterItem[property]
       if (Array.isArray(value)) {
         value.forEach(map)
-      } else if (typeof value === 'object') {
-        map(value)
       }
     })
   }

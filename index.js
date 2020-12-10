@@ -2,6 +2,7 @@
 
 const { $dpc, $set2dpc } = require('./symbols')
 const Entity = require('./attributes/Entity')
+const parseUrl = require('./parseUrl')
 
 const handlers = {}
 const methods = ['GET', 'DELETE']
@@ -36,10 +37,12 @@ module.exports = {
     }, {})
   },
   method: methods,
-  async redirect ({ mapping, request, response }) {
+  async redirect (parameters) {
     try {
-      return await handlers[request.method](...arguments)
+      parameters.parsedUrl = parseUrl(parameters.redirect)
+      return await handlers[parameters.request.method](parameters)
     } catch (e) {
+      const { response } = parameters
       response.writeHead(500, {
         'Content-Type': 'application/json',
         'Content-Length': 2

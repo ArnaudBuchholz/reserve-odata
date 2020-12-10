@@ -50,7 +50,9 @@
     "all": true,
     "cache": false,
     "check-coverage": true,
-    "exclude": [],
+    "exclude": [
+      "coverage/**"
+    ],
     "branches": 100,
     "lines": 100,
     "functions": 100,

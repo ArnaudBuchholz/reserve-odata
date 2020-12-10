@@ -123,18 +123,29 @@ const parseParameters = parameters => parameters.split('&').reduce((map, paramet
 }, {})
 
 module.exports = url => {
-  const [, set, key, navigationProperties, parameters] = /([\w0-9_]+)(?:\(([^)]+)\))?((?:\/[\w0-9_]+)+)?(?:\?(.+))?/.exec(url)
-  const parsed = { set }
+  const [, set, key, navigationProperties, rawParameters] = /^((?:\$metadata|[\w0-9_]+))(?:\(([^)]+)\))?((?:\/[\w0-9_]+)+)?(?:\?(.+))?/.exec(url)
+  const parameters = (rawParameters && parseParameters(rawParameters)) || {}
+  const owns$parameter = Object.keys(parameters).some(parameter => parameter.startsWith('$'))
+  if (set === '$metadata') {
+    if (key || navigationProperties) {
+      throw new Error('Invalid URL')
+    }
+    if (owns$parameter) {
+      throw new Error('Invalid parameter')
+    }
+    return {
+      metadata: true,
+      set: '',
+      parameters,
+      owns$parameter
+    }
+  }
+  const parsed = { set, parameters, owns$parameter }
   if (key) {
     parsed.key = parseKey(key)
   }
   if (navigationProperties) {
     parsed.navigationProperties = navigationProperties.split('/').slice(1)
-  }
-  if (parameters) {
-    parsed.parameters = parseParameters(parameters)
-  } else {
-    parsed.parameters = {}
   }
   return parsed
 }

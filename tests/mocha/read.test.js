@@ -262,6 +262,18 @@ describe('read', () => {
       isRecord(entity, 0)
     })
 
+    test('RecordSet(\'abc\')/children', response => {
+      assert.strictEqual(response.statusCode, 200)
+      const entities = JSON.parse(response.toString()).d.results
+      assert.strictEqual(entities.length, 0)
+    })
+
+    test('RecordSet(\'abc\')/tags', response => {
+      assert.strictEqual(response.statusCode, 200)
+      const entities = JSON.parse(response.toString()).d.results
+      assert.strictEqual(entities.length, 0)
+    })
+
     test('RecordSet(\'abc\')/parent/children?$orderby=number&$top=10', response => {
       assert.strictEqual(response.statusCode, 200)
       const entities = JSON.parse(response.toString()).d.results

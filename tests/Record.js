@@ -48,6 +48,7 @@ class Record {
   }
 
   getTags () {
+    return []
   }
 
   constructor (key) {
@@ -70,7 +71,7 @@ attribute(new gpf.attributes.Serializable({ type: gpf.serial.types.datetime, rea
 attribute(new Sortable())(Record, 'modified')
 attribute(new NavigationProperty('children', Record, '*'))(Record, 'getChildren')
 attribute(new NavigationProperty('parent', Record, 1))(Record, 'getParent')
-attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'buildContent')
+attribute(new NavigationProperty('tags', Tag, '*'))(Record, 'getTags')
 
 Record.reset = () => {
   entities.length = 0

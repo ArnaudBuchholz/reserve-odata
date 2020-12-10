@@ -4,7 +4,6 @@ const { $set2dpc } = require('./symbols')
 const metadata = require('./metadata')
 const Entity = require('./attributes/Entity')
 const NavigationProperty = require('./attributes/NavigationProperty')
-const parseUrl = require('./parseUrl')
 const toJSON = require('./toJSON')
 const { getNamedProperties, mapFilterProperties } = require('./util')
 const gpf = require('gpf-js')
@@ -50,11 +49,10 @@ async function getEntities (request, parsedUrl, EntityClass) {
   }
 }
 
-module.exports = async function ({ mapping, redirect, request, response }) {
-  if (redirect.startsWith('$metadata')) {
+module.exports = async function ({ mapping, parsedUrl, request, response }) {
+  if (parsedUrl.metadata) {
     return metadata(...arguments)
   }
-  const parsedUrl = parseUrl(redirect)
   let { entities, singleEntityAccess } = await getEntities(request, parsedUrl, mapping[$set2dpc][parsedUrl.set])
   if (singleEntityAccess === undefined) {
     response.writeHead(404, {

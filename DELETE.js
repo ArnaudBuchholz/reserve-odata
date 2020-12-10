@@ -1,15 +1,13 @@
 'use strict'
 
-const parseUrl = require('./parseUrl')
 const { $set2dpc } = require('./symbols')
 const Entity = require('./attributes/Entity')
 
-module.exports = async function ({ mapping, redirect, request, response }) {
-  const parsedUrl = parseUrl(redirect)
+module.exports = async function ({ mapping, parsedUrl, request, response }) {
   if (!parsedUrl.key) {
     throw new Error('Missing key')
   }
-  if (Object.keys(parsedUrl.parameters).some(parameter => parameter.startsWith('$'))) {
+  if (parsedUrl.owns$parameter) {
     throw new Error('Unsupported parameter')
   }
   const EntityClass = mapping[$set2dpc][parsedUrl.set]

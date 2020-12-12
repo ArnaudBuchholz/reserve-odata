@@ -41,7 +41,11 @@ function handle ({
     .then(() => response)
 }
 
-const test = (method, url, callback) => {
+const test = (method, url, body, callback) => {
+  if (typeof body === 'function') {
+    callback = body
+    body = undefined
+  }
   if (callback === undefined) {
     callback = url
     url = method
@@ -50,15 +54,15 @@ const test = (method, url, callback) => {
     url = method
     method = 'GET'
   }
-  it(`${method} ${url}`, () => handle({ request: { method, url } }).then(callback))
+  it(`${method} ${url}`, () => handle({ request: { method, url, body } }).then(callback))
 }
 
 const notFound = (url) => {
-  test('GET', url, response => assert.strictEqual(response.statusCode, 404))
+  test('GET', url, undefined, response => assert.strictEqual(response.statusCode, 404))
 }
 
-const fail = (method, url) => {
-  test(method, url, response => assert.strictEqual(response.statusCode, 500))
+const fail = (method, url, body) => {
+  test(method, url, body, response => assert.strictEqual(response.statusCode, 500))
 }
 
 const reset = () => {

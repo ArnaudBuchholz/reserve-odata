@@ -2,6 +2,8 @@
 
 const { $set2dpc } = require('./symbols')
 const Entity = require('./attributes/Entity')
+const { body } = require('reserve')
+const toJSON = require('./toJSON')
 
 module.exports = async function ({ mapping, parsedUrl, request, response }) {
   if (parsedUrl.owns$parameter) {
@@ -11,12 +13,13 @@ module.exports = async function ({ mapping, parsedUrl, request, response }) {
   if (!EntityClass) {
     throw new Error('Unkown entity class')
   }
-/*
-  const deleted = await Entity.delete(EntityClass, request, parsedUrl.key)
-  if (!deleted) {
-    throw new Error('Not deleted')
-  }
-  response.writeHead(204)
-  response.end()
-*/
+  const definition = JSON.parse(await body(request))
+  const entity = Entity.create(EntityClass, request, definition)
+  const d = toJSON(entity, mapping['service-namespace'])
+  const content = JSON.stringify({ d })
+  response.writeHead(201, {
+    'Content-Type': 'application/json',
+    'Content-Length': content.length
+  })
+  response.end(content)
 }

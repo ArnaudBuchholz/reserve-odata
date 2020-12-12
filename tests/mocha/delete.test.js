@@ -6,12 +6,10 @@ const { handle, test, reset, fail } = require('./handle.js')
 describe('delete', () => {
   before(reset)
 
-  test('DELETE', 'RecordSet(\'abc\')', response => {
+  test('DELETE', 'RecordSet(\'abc\')', async response => {
     assert.strictEqual(response.statusCode, 204)
-    return handle({ request: 'RecordSet(\'abc\')' })
-      .then(response => {
-        assert.strictEqual(response.statusCode, 404)
-      })
+    const readResponse = await handle({ request: 'RecordSet(\'abc\')' })
+    assert.strictEqual(readResponse.statusCode, 404)
   })
 
   describe('errors', () => {

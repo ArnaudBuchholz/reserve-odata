@@ -78,4 +78,11 @@ Entity.delete = async (EntityClass, request, key) => {
   throw new Error('Not implemented')
 }
 
+Entity.create = async (EntityClass, request, definition) => {
+  if (EntityClass.create) {
+    return EntityClass.create(request, definition)
+  }
+  throw new Error('Not implemented')
+}
+
 module.exports = Entity

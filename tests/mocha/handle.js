@@ -41,10 +41,10 @@ function handle ({
     .then(() => response)
 }
 
-const test = (method, url, body, callback) => {
-  if (typeof body === 'function') {
-    callback = body
-    body = undefined
+const test = (method, url, rawBody, callback) => {
+  if (typeof rawBody === 'function') {
+    callback = rawBody
+    rawBody = undefined
   }
   if (callback === undefined) {
     callback = url
@@ -53,6 +53,12 @@ const test = (method, url, body, callback) => {
   } else if (url === undefined) {
     url = method
     method = 'GET'
+  }
+  let body
+  if (typeof rawBody === 'object') {
+    body = JSON.stringify(rawBody)
+  } else {
+    body = rawBody
   }
   it(`${method} ${url}`, () => handle({ request: { method, url, body } }).then(callback))
 }

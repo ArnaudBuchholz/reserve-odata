@@ -1,7 +1,7 @@
 'use strict'
 
 const gpf = require('gpf-js')
-const Entity = require('./attributes/Entity')
+const { names } = require('./entity')
 const Key = require('./attributes/Key')
 const NavigationProperty = require('./attributes/NavigationProperty')
 
@@ -56,7 +56,7 @@ module.exports = function toJSON (entity, namespace, select = []) {
     )
     .join(',')
 
-  const { name: entityName, setName: entitySetName } = Entity.names(entity.constructor)
+  const { name: entityName, setName: entitySetName } = names(entity.constructor)
   json.__metadata = {
     uri: `${entitySetName}(${uriKey})`,
     type: `${namespace}.${entityName}`

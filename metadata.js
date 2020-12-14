@@ -1,7 +1,7 @@
 'use strict'
 
 const { $dpc } = require('./symbols')
-const Entity = require('./attributes/Entity')
+const entity = require('./entity')
 const Key = require('./attributes/Key')
 const Filterable = require('./attributes/Filterable')
 const Sortable = require('./attributes/Sortable')
@@ -49,7 +49,7 @@ module.exports = async ({ mapping, response }) => {
     .startElement('Schema', { Namespace: serviceNamespace })
 
   for await (const EntityClass of entities) {
-    const { name: entityName } = Entity.names(EntityClass)
+    const { name: entityName } = entity.names(EntityClass)
 
     await promisifiedWriter
       .startElement('EntityType', { Name: entityName })
@@ -104,7 +104,7 @@ module.exports = async ({ mapping, response }) => {
     await promisifiedWriter.endElement() // EntityType
 
     for await (const navigationProperty of navigationProperties) {
-      const { name: toEntityName } = Entity.names(navigationProperty.to)
+      const { name: toEntityName } = entity.names(navigationProperty.to)
       await promisifiedWriter
         .startElement('Association', {
           Name: navigationProperty.relationshipName,
@@ -133,7 +133,7 @@ module.exports = async ({ mapping, response }) => {
   })
 
   for await (const EntityClass of entities) {
-    const { name: entityName, setName: entitySetName } = Entity.names(EntityClass)
+    const { name: entityName, setName: entitySetName } = entity.names(EntityClass)
 
     let attributes
     if (mapping['use-sap-extension']) {
@@ -153,7 +153,7 @@ module.exports = async ({ mapping, response }) => {
 
     const navigationProperties = NavigationProperty.list(EntityClass)
     for await (const navigationProperty of navigationProperties) {
-      const { setName: toEntitySetName } = Entity.names(navigationProperty.to)
+      const { setName: toEntitySetName } = entity.names(navigationProperty.to)
       await promisifiedWriter
         .startElement('AssociationSet', {
           Name: `${navigationProperty.relationshipName}Set`,

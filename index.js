@@ -1,7 +1,7 @@
 'use strict'
 
 const { $dpc, $set2dpc } = require('./symbols')
-const Entity = require('./attributes/Entity')
+const entity = require('./entity')
 const parseUrl = require('./parseUrl')
 
 const handlers = {}
@@ -31,7 +31,7 @@ module.exports = {
       mapping[$dpc] = await require(dpc)()
     }
     mapping[$set2dpc] = mapping[$dpc].reduce((mapping, EntityClass) => {
-      const { setName } = Entity.names(EntityClass)
+      const { setName } = entity.names(EntityClass)
       mapping[setName] = EntityClass
       return mapping
     }, {})
@@ -39,8 +39,24 @@ module.exports = {
   method: methods,
   async redirect (parameters) {
     try {
-      parameters.parsedUrl = parseUrl(parameters.redirect)
-      return await handlers[parameters.request.method](parameters)
+      const parsedUrl = parseUrl(parameters.redirect)
+      const { method } = parameters.request
+      if (method !== 'GET') {
+        if (parsedUrl.metadata) {
+          throw new Error('Unsupported action')
+        }
+        if (parsedUrl.owns$parameter) {
+          throw new Error('Unsupported parameter')
+        }
+      }
+      let EntityClass
+      if (!parsedUrl.metadata) {
+        EntityClass = parameters.mapping[$set2dpc][parsedUrl.set]
+        if (!EntityClass) {
+          throw new Error('Unkown entity class')
+        }
+      }
+      return await handlers[method]({ ...parameters, parsedUrl, EntityClass })
     } catch (e) {
       const { response } = parameters
       response.writeHead(500, {

@@ -116,7 +116,7 @@ describe('read', () => {
       notFound('RecordSet(\'9999\')')
       notFound('RecordSet(whatever=\'abc\')')
       notFound('ApplicationSettings(whatever=\'9999\')')
-      notFound('UnknownSet(\'9999\')')
+      fail('UnknownSet(\'9999\')')
       fail('RecordSet(\'abc\')?$expand=not_a_navigation_property')
       fail('RecordSet(\'abc\')?$select=not_a_property')
     })

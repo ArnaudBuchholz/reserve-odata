@@ -1,20 +1,12 @@
 'use strict'
 
-const { $set2dpc } = require('./symbols')
-const Entity = require('./attributes/Entity')
+const { delete: delete_ } = require('./entity')
 
-module.exports = async function ({ mapping, parsedUrl, request, response }) {
+module.exports = async function ({ EntityClass, mapping, parsedUrl, request, response }) {
   if (!parsedUrl.key) {
     throw new Error('Missing key')
   }
-  if (parsedUrl.owns$parameter) {
-    throw new Error('Unsupported parameter')
-  }
-  const EntityClass = mapping[$set2dpc][parsedUrl.set]
-  if (!EntityClass) {
-    throw new Error('Unkown entity class')
-  }
-  const deleted = await Entity.delete(EntityClass, request, parsedUrl.key)
+  const deleted = await delete_(EntityClass, request, parsedUrl.key)
   if (!deleted) {
     throw new Error('Not deleted')
   }

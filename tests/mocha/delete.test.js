@@ -13,6 +13,8 @@ describe('delete', () => {
   })
 
   describe('errors', () => {
+    fail('DELETE', '$metadata')
+    fail('DELETE', '123')
     fail('DELETE', 'RecordSet')
     fail('DELETE', 'RecordSet(\'abc\')')
     fail('DELETE', 'RecordSet(\'abd\')?$expand=abc')

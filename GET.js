@@ -1,11 +1,10 @@
 'use strict'
 
-const { $set2dpc } = require('./symbols')
 const metadata = require('./metadata')
-const Entity = require('./attributes/Entity')
+const { get, list } = require('./entity')
 const NavigationProperty = require('./attributes/NavigationProperty')
 const toJSON = require('./toJSON')
-const { getNamedProperties, mapFilterProperties } = require('./util')
+const { getNamedProperties, mapFilterProperties } = require('./properties')
 const gpf = require('gpf-js')
 
 function getNavigationProperty (entity, navigationPropertyName) {
@@ -15,13 +14,10 @@ function getNavigationProperty (entity, navigationPropertyName) {
 }
 
 async function getEntities (request, parsedUrl, EntityClass) {
-  if (!EntityClass) {
-    return {}
-  }
   let entities
   let singleEntityAccess = false
   if (parsedUrl.key) {
-    const entity = await Entity.get(EntityClass, request, parsedUrl.key)
+    const entity = await get(EntityClass, request, parsedUrl.key)
     if (!entity) {
       return {}
     }
@@ -41,7 +37,7 @@ async function getEntities (request, parsedUrl, EntityClass) {
       singleEntityAccess = true
     }
   } else {
-    entities = await Entity.list(EntityClass, request, mapFilterProperties(parsedUrl.parameters.$filter, EntityClass))
+    entities = await list(EntityClass, request, mapFilterProperties(parsedUrl.parameters.$filter, EntityClass))
   }
   return {
     entities,
@@ -49,11 +45,11 @@ async function getEntities (request, parsedUrl, EntityClass) {
   }
 }
 
-module.exports = async function ({ mapping, parsedUrl, request, response }) {
+module.exports = async function ({ EntityClass, mapping, parsedUrl, request, response }) {
   if (parsedUrl.metadata) {
     return metadata(...arguments)
   }
-  let { entities, singleEntityAccess } = await getEntities(request, parsedUrl, mapping[$set2dpc][parsedUrl.set])
+  let { entities, singleEntityAccess } = await getEntities(request, parsedUrl, EntityClass)
   if (singleEntityAccess === undefined) {
     response.writeHead(404, {
       'Content-Type': 'application/json',

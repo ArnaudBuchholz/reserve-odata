@@ -103,4 +103,14 @@ Record.delete = (request, key) => {
   return false
 }
 
+Record.create = (request, entity) => {
+  const index = parseInt(entity.name, 16)
+  if (entities[index]) {
+    throw new Error('Already exist')
+  }
+  const record = new Record(entity.name.toLowerCase())
+  entities[index] = record
+  return record
+}
+
 module.exports = Record

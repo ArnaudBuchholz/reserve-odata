@@ -62,11 +62,18 @@ const cudFactory = method => {
   }
 }
 
+const cudTester = method => {
+  return EntityClass => !!EntityClass[method]
+}
+
 module.exports = {
   names,
   get,
   list,
-  delete: cudFactory('delete'),
   create: cudFactory('create'),
-  update: cudFactory('update')
+  creatable: cudTester('create'),
+  update: cudFactory('update'),
+  updatable: cudTester('update'),
+  delete: cudFactory('delete'),
+  deletable: cudTester('delete')
 }

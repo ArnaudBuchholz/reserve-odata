@@ -138,9 +138,9 @@ module.exports = async ({ mapping, response }) => {
     let attributes
     if (mapping['use-sap-extension']) {
       attributes = {
-        'sap:creatable': false,
-        'sap:updatable': false,
-        'sap:deletable': false
+        'sap:creatable': entity.creatable(EntityClass),
+        'sap:updatable': entity.updatable(EntityClass),
+        'sap:deletable': entity.deletable(EntityClass)
       }
     }
     await promisifiedWriter

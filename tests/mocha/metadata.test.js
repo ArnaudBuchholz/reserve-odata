@@ -62,7 +62,10 @@ describe('metadata', () => {
     nameSet = `${name}Set`,
     properties,
     navigationProperties = {},
-    namespace = 'test'
+    namespace = 'test',
+    creatable = undefined,
+    updatable = undefined,
+    deletable = undefined
   }) {
     const schema = xml.Edmx.DataServices[0].Schema[0]
 
@@ -102,6 +105,15 @@ describe('metadata', () => {
     assert.ok(entitySet)
     assert.strictEqual(entitySet.$ns.uri, 'http://schemas.microsoft.com/ado/2008/09/edm')
     assert.strictEqual(entitySet.$.EntityType.value, `${namespace}.${name}`)
+    if (creatable !== undefined) {
+      assert.strictEqual(entitySet.$.creatable.value, creatable.toString())
+    }
+    if (updatable !== undefined) {
+      assert.strictEqual(entitySet.$.updatable.value, updatable.toString())
+    }
+    if (deletable !== undefined) {
+      assert.strictEqual(entitySet.$.deletable.value, deletable.toString())
+    }
 
     const navigationPropertiesCount = Object.keys(navigationProperties).length
     if (navigationPropertiesCount) {
@@ -192,6 +204,9 @@ describe('metadata', () => {
       checkEntity({
         xml,
         name: 'Tag',
+        creatable: false,
+        updatable: false,
+        deletable: false,
         properties: {
           name: { type: 'Edm.String', key: true },
           count: { type: 'Edm.Int64' },
@@ -201,6 +216,9 @@ describe('metadata', () => {
       checkEntity({
         xml,
         name: 'Record',
+        creatable: true,
+        updatable: true,
+        deletable: true,
         properties: {
           id: { type: 'Edm.String', key: true },
           parentId: { type: 'Edm.String' },

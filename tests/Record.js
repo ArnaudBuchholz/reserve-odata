@@ -94,15 +94,6 @@ Record.list = (request, filter) => {
   return entities.filter(gpf.createFilterFunction(filter))
 }
 
-Record.delete = (request, key) => {
-  const index = parseInt(key, 16)
-  if (entities[index]) {
-    entities[index] = undefined
-    return true
-  }
-  return false
-}
-
 Record.create = (request, entity) => {
   const index = parseInt(entity.name, 16)
   if (entities[index]) {
@@ -111,6 +102,24 @@ Record.create = (request, entity) => {
   const record = new Record(entity.name.toLowerCase())
   entities[index] = record
   return record
+}
+
+Record.update = (request, key, entity) => {
+  const index = parseInt(key, 16)
+  if (entities[index]) {
+    entities[index] = undefined
+    return true
+  }
+  return false
+}
+
+Record.delete = (request, key) => {
+  const index = parseInt(key, 16)
+  if (entities[index]) {
+    entities[index] = undefined
+    return true
+  }
+  return false
 }
 
 module.exports = Record

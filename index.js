@@ -5,7 +5,7 @@ const entity = require('./entity')
 const parseUrl = require('./parseUrl')
 
 const handlers = {}
-const methods = ['GET', 'DELETE', 'POST']
+const methods = ['GET', 'DELETE', 'POST', 'MERGE']
 methods.forEach(method => {
   handlers[method] = require(`./${method}`)
 })

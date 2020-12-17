@@ -12,6 +12,7 @@ module.exports = updateEntity => async function ({ EntityClass, parsedUrl, reque
   if (!entity) {
     throw new Error('Entity not found')
   }
+  // TODO: deserialize body
   const updatedEntity = updateEntity(entity, JSON.parse(await body(request)))
   await update(EntityClass, request, key, updatedEntity)
   response.writeHead(204, {

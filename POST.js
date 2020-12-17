@@ -5,6 +5,7 @@ const { body } = require('reserve')
 const toJSON = require('./toJSON')
 
 module.exports = async function ({ EntityClass, mapping, parsedUrl, request, response }) {
+  // TODO: deserialize body
   const entity = await create(EntityClass, request, JSON.parse(await body(request)))
   const d = toJSON(entity, mapping['service-namespace'])
   const content = JSON.stringify({ d })

@@ -20,7 +20,8 @@ describe('read', () => {
     }
     assert.strictEqual(entity.name, id.toUpperCase())
     assert.strictEqual(entity.number, number)
-    assert.notStrictEqual(entity.modified, undefined)
+    assert.strictEqual(typeof entity.modified, 'string')
+    assert.ok(entity.modified.match(/\/Date\(\d+\)\//))
     assert.ok(entity.__metadata)
     assert.strictEqual(entity.__metadata.type, 'test.Record')
     assert.strictEqual(entity.__metadata.uri, `RecordSet('${id}')`)

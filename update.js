@@ -2,6 +2,7 @@
 
 const { get, update } = require('./entity')
 const { body } = require('reserve')
+const fromJSONString = require('./fromJSONString')
 
 module.exports = updateEntity => async function ({ EntityClass, parsedUrl, request, response }) {
   const { key } = parsedUrl
@@ -12,9 +13,9 @@ module.exports = updateEntity => async function ({ EntityClass, parsedUrl, reque
   if (!entity) {
     throw new Error('Entity not found')
   }
-  // TODO: deserialize body
-  const updatedEntity = updateEntity(entity, JSON.parse(await body(request)))
-  await update(EntityClass, request, key, updatedEntity)
+  const properties = fromJSONString(EntityClass, await body(request))
+  const updates = updateEntity(entity, properties)
+  await update(EntityClass, request, key, updates)
   response.writeHead(204, {
     'Content-Type': 'application/json',
     'Content-Length': 0

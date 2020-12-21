@@ -4,7 +4,7 @@ const { get, update } = require('./entity')
 const { body } = require('reserve')
 const fromJSONString = require('./fromJSONString')
 
-module.exports = updateEntity => async function ({ EntityClass, parsedUrl, request, response }) {
+module.exports = compare => async function ({ EntityClass, parsedUrl, request, response }) {
   const { key } = parsedUrl
   if (!key) {
     throw new Error('Missing key')
@@ -14,8 +14,8 @@ module.exports = updateEntity => async function ({ EntityClass, parsedUrl, reque
     throw new Error('Entity not found')
   }
   const properties = fromJSONString(EntityClass, await body(request))
-  const updates = updateEntity(entity, properties)
-  await update(EntityClass, request, key, updates)
+  const updates = compare(entity, properties)
+  await update(EntityClass, request, entity, updates)
   response.writeHead(204, {
     'Content-Type': 'application/json',
     'Content-Length': 0

@@ -111,12 +111,16 @@ Record.update = (request, key, updates) => {
   const index = parseInt(key, 16)
   const entity = entities[index]
   if (entity) {
-    updates.remove.forEach(name => {
-      delete entity[`_${name}`]
-    })
-    Object.keys(updates.set).forEach(name => {
-      entity[`_${name}`] = updates.set[name]
-    })
+    Object.keys(updates)
+      .filter(name => !['id', 'parentId'].includes(name))
+      .forEach(name => {
+        const value = updates[name]
+        if (value === undefined) {
+          delete entity[`_${name}`]
+        } else {
+          entity[`_${name}`] = value
+        }
+      })
     return true
   }
   return false

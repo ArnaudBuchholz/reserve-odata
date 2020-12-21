@@ -107,23 +107,18 @@ Record.create = (request, entity) => {
   return record
 }
 
-Record.update = (request, key, updates) => {
-  const index = parseInt(key, 16)
-  const entity = entities[index]
-  if (entity) {
-    Object.keys(updates)
-      .filter(name => !['id', 'parentId'].includes(name))
-      .forEach(name => {
-        const value = updates[name]
-        if (value === undefined) {
-          delete entity[`_${name}`]
-        } else {
-          entity[`_${name}`] = value
-        }
-      })
-    return true
-  }
-  return false
+Record.update = (request, entity, updates) => {
+  Object.keys(updates)
+    .filter(name => !['id', 'parentId'].includes(name))
+    .forEach(name => {
+      const value = updates[name]
+      if (value === undefined) {
+        delete entity[`_${name}`]
+      } else {
+        entity[`_${name}`] = value
+      }
+    })
+  return true
 }
 
 Record.delete = (request, key) => {

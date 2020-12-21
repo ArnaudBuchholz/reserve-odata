@@ -9,7 +9,7 @@ describe('update', () => {
 
     test('PUT', '/Record(\'abc\')', {
       name: 'updated',
-      number: 2748,
+      number: 2748
       //  modified
     }, async response => {
       assert.strictEqual(response.statusCode, 204)
@@ -28,6 +28,5 @@ describe('update', () => {
 
   describe('MERGE', () => {
     before(reset)
-
   })
 })

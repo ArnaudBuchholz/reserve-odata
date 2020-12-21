@@ -101,7 +101,7 @@ Record.create = (request, entity) => {
   }
   const record = new Record(entity.name.toLowerCase())
   if (entity.modified) {
-    record.modified = entity.modified
+    record._modified = entity.modified
   }
   entities[index] = record
   return record

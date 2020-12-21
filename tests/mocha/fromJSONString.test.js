@@ -26,5 +26,7 @@ function test (EntityClass, json, expected) {
 }
 
 describe('fromJSONString', () => {
-  test(Record, { name: 'abc' }, { _name: 'abc ' })
+  test(Record, { name: 'abc' }, { name: 'abc' })
+  test(Record, { number: 123 }, { notSimplyNamedNumber: 123 })
+  test(Record, { modified: `/Date(${referenceTime})/` }, { modified: new Date(referenceTime) })
 })

@@ -18,11 +18,11 @@ function getKeys (entity) {
 
 module.exports = function toJSON (entity, namespace, select = []) {
   let propertiesFoundInSelect = 0
-  const json = gpf.serial.toRaw(entity, (value, property) => {
-    if (select.includes(property.name)) {
+  const json = gpf.serial.toRaw(entity, (value, { name, type }) => {
+    if (select.includes(name)) {
       ++propertiesFoundInSelect
     }
-    if (gpf.serial.types.datetime === property.type) {
+    if (type === gpf.serial.types.datetime) {
       if (value) {
         return '/Date(' + value.getTime() + ')/'
       }

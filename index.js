@@ -58,6 +58,7 @@ module.exports = {
       }
       return await handlers[method]({ ...parameters, parsedUrl, EntityClass })
     } catch (e) {
+console.log(e)
       const { response } = parameters
       response.writeHead(500, {
         'Content-Type': 'application/json',

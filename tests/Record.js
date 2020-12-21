@@ -100,6 +100,9 @@ Record.create = (request, entity) => {
     throw new Error('Already exist')
   }
   const record = new Record(entity.name.toLowerCase())
+  if (entity.modified) {
+    record.modified = entity.modified
+  }
   entities[index] = record
   return record
 }

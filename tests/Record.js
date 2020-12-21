@@ -107,10 +107,16 @@ Record.create = (request, entity) => {
   return record
 }
 
-Record.update = (request, key, entity) => {
+Record.update = (request, key, updates) => {
   const index = parseInt(key, 16)
-  if (entities[index]) {
-    entities[index] = undefined
+  const entity = entities[index]
+  if (entity) {
+    updates.remove.forEach(name => {
+      delete entity[`_${name}`]
+    })
+    Object.keys(updates.set).forEach(name => {
+      entity[`_${name}`] = updates.set[name]
+    })
     return true
   }
   return false

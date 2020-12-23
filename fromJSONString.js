@@ -7,7 +7,7 @@ const mapOfJSONToSerialType = {}
 const invalidType = () => { throw new Error('Invalid type') }
 
 const checkType = type => value => {
-  if (typeof value !== type) {
+  if (typeof value !== type) { // eslint-disable-line valid-typeof
     invalidType()
   }
   return value

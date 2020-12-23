@@ -15,7 +15,10 @@ module.exports = compare => async function ({ EntityClass, parsedUrl, request, r
   }
   const properties = fromJSONString(EntityClass, await body(request))
   const updates = compare(entity, properties)
-  await update(EntityClass, request, entity, updates)
+  const updated = await update(EntityClass, request, entity, updates)
+  if (!updated) {
+    throw new Error('Not updated')
+  }
   response.writeHead(204, {
     'Content-Type': 'application/json',
     'Content-Length': 0

@@ -108,6 +108,9 @@ Record.create = (request, entity) => {
 }
 
 Record.update = (request, entity, updates) => {
+  if (updates.name === 'fail') {
+    return false
+  }
   Object.keys(updates)
     .filter(name => !['id', 'parentId'].includes(name))
     .forEach(name => {

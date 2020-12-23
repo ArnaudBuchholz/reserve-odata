@@ -4,6 +4,8 @@ const assert = require('assert')
 const { handle, test, reset, fail } = require('./handle.js')
 
 describe('update', () => {
+  const referenceDate = `/Date(${new Date(2020, 11, 22, 23, 57, 12, 345).getTime()})/`
+
   describe('PUT', () => {
     before(reset)
 
@@ -19,6 +21,20 @@ describe('update', () => {
       assert.strictEqual(readEntity.name, 'updated')
       assert.strictEqual(readEntity.number, 2748)
       assert.strictEqual(readEntity.modified, null)
+    })
+
+    test('PUT', 'RecordSet(\'abc\')', {
+      name: 'updated',
+      number: 2748,
+      modified: referenceDate
+    }, async response => {
+      assert.strictEqual(response.statusCode, 204)
+      const readResponse = await handle({ request: 'RecordSet(\'abc\')' })
+      assert.strictEqual(readResponse.statusCode, 200)
+      const readEntity = JSON.parse(readResponse.toString()).d
+      assert.strictEqual(readEntity.name, 'updated')
+      assert.strictEqual(readEntity.number, 2748)
+      assert.strictEqual(readEntity.modified, referenceDate)
     })
 
     describe('errors', () => {
@@ -47,6 +63,18 @@ describe('update', () => {
       assert.strictEqual(readEntity.name, 'updated')
       assert.strictEqual(readEntity.number, 2748)
       assert.ok(readEntity.modified.match(/\/Date\(\d+\)\//))
+    })
+
+    test('MERGE', 'RecordSet(\'abc\')', {
+      modified: referenceDate
+    }, async response => {
+      assert.strictEqual(response.statusCode, 204)
+      const readResponse = await handle({ request: 'RecordSet(\'abc\')' })
+      assert.strictEqual(readResponse.statusCode, 200)
+      const readEntity = JSON.parse(readResponse.toString()).d
+      assert.strictEqual(readEntity.name, 'updated')
+      assert.strictEqual(readEntity.number, 2748)
+      assert.strictEqual(readEntity.modified, referenceDate)
     })
 
     describe('errors', () => {

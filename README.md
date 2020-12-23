@@ -38,18 +38,18 @@ Simple [ODATA v2](https://www.odata.org/documentation/odata-version-2-0/) handle
 
 ## Data Provider Class
 
-Entities definition and records are made available through classes.
-The class not only defines the entity structure (name and members) but also it gives information about linked entities (through navigation properties).
-It also contains methods to access the entities.
+Entities definition and records are made available through **classes**.
+The class not only defines the entity structure *(name and members)* but also it gives information about linked entities *(through navigation properties)*. Last but not least, it contains methods to access the entities.
 
 ### `async EntityClass.get (request, key) : object`
 
-Retreive one entity based on its key.
-Depending on the entity definition, there might be one or multiple fields in the key.
-When only one field is composing the key, the key value is passed.
-Otherwise, a dictionary mapping property to the expected value is passed.
+Retreives one entity based on its key.
 
-This method is optional: if not existing, the implementation will use `EntityClass.list`
+Depending on the entity definition, there might be one or multiple fields in the key :
+* When only one field is composing the key, the key value is passed.
+* Otherwise, a dictionary mapping each property composing the key to the expected value is passed.
+
+This method is optional: when not existing, the handler will use `EntityClass.list`
 
 ### `async EntityClass.list (request, filters) : []`
 
@@ -65,9 +65,13 @@ $select, $sort, $top & $skip are handled internally
 
 Used for create
 
-### Update & Delete
+### `async EntityClass.update (request, properties) : boolean`
 
-Methods should be flagged with a specific attribute (if the attribute does not exist, then methods are forbidden)
+Used for update
+
+### `async EntityClass.delete (request, properties) : boolean`
+
+Used for delete
 
 ## Attributes
 

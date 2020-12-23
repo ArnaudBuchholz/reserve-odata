@@ -40,6 +40,7 @@ describe('update', () => {
     describe('errors', () => {
       fail('PUT', '$metadata')
       fail('PUT', '123')
+      fail('PUT', 'RecordSet(\'abc\')', { name: 'fail' })
       fail('PUT', 'RecordSet', { name: '270F' })
       fail('PUT', 'RecordSet?$top=1', { name: '9999' })
       fail('PUT', 'RecordSet(\'not_existing\')', { name: 'create?' })
@@ -80,6 +81,7 @@ describe('update', () => {
     describe('errors', () => {
       fail('MERGE', '$metadata')
       fail('MERGE', '123')
+      fail('MERGE', 'RecordSet(\'abc\')', { name: 'fail' })
       fail('MERGE', 'RecordSet', { name: '270F' })
       fail('MERGE', 'RecordSet?$top=1', { name: '9999' })
       fail('MERGE', 'RecordSet(\'not_existing\')', { name: 'create?' })

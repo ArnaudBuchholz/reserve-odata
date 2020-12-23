@@ -5,10 +5,9 @@ const { names } = require('./entity')
 const Key = require('./attributes/Key')
 const NavigationProperty = require('./attributes/NavigationProperty')
 
-const mapOfSerialTypeToJSON = {
-  integer: value => value,
-  string: value => `'${encodeURIComponent(value)}'`
-}
+const mapOfSerialTypeToJSON = {}
+mapOfSerialTypeToJSON[gpf.serial.types.integer] = value => value
+mapOfSerialTypeToJSON[gpf.serial.types.string] = value => `'${encodeURIComponent(value)}'`
 
 function getKeys (entity) {
   const EntityClass = entity.constructor

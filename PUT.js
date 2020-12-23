@@ -3,6 +3,13 @@
 const gpf = require('gpf-js')
 const update = require('./update')
 
+function getTime (value) {
+  if (value) {
+    return value.getTime()
+  }
+  return -1
+}
+
 module.exports = update((entity, properties) => {
   const memberProperties = gpf.serial.get(entity)
   Object.keys(memberProperties).forEach(member => {
@@ -12,7 +19,7 @@ module.exports = update((entity, properties) => {
       const oldValue = entity[member]
       let diff
       if (type === gpf.serial.types.datetime) {
-        diff = newValue.getTime() !== oldValue.getTime()
+        diff = getTime(newValue) !== getTime(oldValue)
       } else {
         diff = newValue !== oldValue
       }

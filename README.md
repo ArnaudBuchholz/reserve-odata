@@ -33,45 +33,69 @@ Simple [ODATA v2](https://www.odata.org/documentation/odata-version-2-0/) handle
 | Option | Type / Default Value | Explanation |
 |---|---|---|
 | `service-namespace` | `'ODATANS'` | Service namespace |
-| `use-sap-extension` | `false` | `true` to insert SAP specific information in the $metadata |
-| `data-provider-classes` | function or string | Asynchronous function (or module exporting an asynchronous function) returning the list of data provider classes (see below) |
+| `use-sap-extension` | `false` | `true` to insert SAP specific information in the `$metadata` |
+| `data-provider-classes` | function or string | Asynchronous function (or module exporting an asynchronous function) returning the list of **data provider classes** (see below) |
 
 ## Data Provider Class
 
-Entities definition and records are made available through **classes**.
-The class not only defines the entity structure *(name and members)* but also it gives information about linked entities *(through navigation properties)*. Last but not least, it contains methods to access the entities.
+Entities definition and records are made available through JavaScript **classes**.
+The class not only defines the entity structure *(name and members)* but also it gives information about linked entities *(through navigation properties)*. Last but not least, it contains methods to manipulate the entities.
 
-### `async EntityClass.get (request, key) : object`
+**IMPORTANT NOTE** : No **synchronization mechanism** is in place to ensure that **concurrent operations** *(read, create, update or delete)* return **consistent results**. For instance, if the delete implementation takes time, it is possible to do a concurrent read that will return the entity while it is being deleted.
+
+### *(optional)* `async EntityClass.get (request, key) : object`
 
 Retreives one entity based on its key.
 
-Depending on the entity definition, there might be one or multiple fields in the key :
-* When only one field is composing the key, the key value is passed.
-* Otherwise, a dictionary mapping each property composing the key to the expected value is passed.
+Depending on the entity definition, there might be **one** or **multiple** fields in the key :
+* When only one field is composing the key, the key **value** is passed.
+* Otherwise, a **dictionary** mapping each property composing the key to the expected value is passed.
 
-This method is optional: when not existing, the handler will use `EntityClass.list`
+This method is optional : when not defined, the handler will use `EntityClass.list`
 
 ### `async EntityClass.list (request, filters) : []`
+### *or* `async EntityClass.list (request) : []`
 
-Might as well define async EntityClass.list (request) (no filter parameter)
+Retreives entities based on filters, expected result is an object array.
 
-Might be changed thanks to a class attribute
+Based on the method [signature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/length), the filters might be either **passed** or **applied internally** after getting all records.
 
-gpf.typedef.filterItem is optional. If 
+Filters definition is based on the structure [gpf.typedef.filterItem](https://arnaudbuchholz.github.io/gpf/doc/gpf.typedef.html#.filterItem__anchor) and refer to **class properties** *(rather than ODATA properties)*.
 
-$select, $sort, $top & $skip are handled internally
+**NOTE** : the `contains` operator is **not implemented**.
 
-### `async EntityClass.create (request, properties) : object`
+This method is used for most `READ` operations. The following [ODATA parameters](https://www.odata.org/documentation/odata-version-2-0/uri-conventions/) are handled internally :
+* `$select` for attributes selection
+* `$sort` for sorting entries
+* `$top` and `$skip` for paging
 
-Used for create
+### *(optional)* `async EntityClass.create (request, properties) : object`
 
-### `async EntityClass.update (request, properties) : boolean`
+Creates a new entity, it must return the created entity.
 
-Used for update
+The `properties` parameter is a **dictionary** containing the **deserialized values** indexed by their **class properties** *(rather than ODATA properties)*.
 
-### `async EntityClass.delete (request, properties) : boolean`
+Besides basic type checking done upon deserializing the properties, **no validation** is applied before calling the method.
 
-Used for delete
+This method is optional : when not defined, the entity set is **not creatable** and any creation attempt will fail.
+
+### `async EntityClass.update (request, entity, updates) : boolean`
+
+Updates an existing entity, must return `true` to indicate a **successful** update.
+
+The `updates` parameter is a dictionary listing the **class properties that are updated** *(rather than ODATA properties)*. Wheter the client call uses `PUT` or `MERGE`, only the **relevant** updates are passed to this method.
+
+When the client call uses `PUT` and a property is missing, the `updates` parameter associate the class property to `undefined`.
+
+Besides basic type checking done upon deserializing the updates, **no validation** is applied before calling the method.
+
+This method is optional : when not defined, the entity set is **not updatable** and any update attempt will fail.
+
+### `async EntityClass.delete (request, key) : boolean`
+
+Deletes an existing entity, must return `true` to indicate a **successful** update.
+
+This method is optional : when not defined, the entity set is **not deletable** and any delete attempt will fail.
 
 ## Attributes
 

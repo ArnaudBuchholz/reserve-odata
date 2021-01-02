@@ -109,7 +109,7 @@ Record.create = (request, entity) => {
 
 Record.update = (request, entity, updates) => {
   if (updates.name === 'fail') {
-    return false
+    throw new Error('Unsupported')
   }
   Object.keys(updates)
     .filter(name => !['id', 'parentId'].includes(name))
@@ -121,16 +121,11 @@ Record.update = (request, entity, updates) => {
         entity[`_${name}`] = value
       }
     })
-  return true
 }
 
-Record.delete = (request, key) => {
-  const index = parseInt(key, 16)
-  if (entities[index]) {
-    entities[index] = undefined
-    return true
-  }
-  return false
+Record.delete = (request, entity) => {
+  const index = parseInt(entity.id, 16)
+  entities[index] = undefined
 }
 
 module.exports = Record

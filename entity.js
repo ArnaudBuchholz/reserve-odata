@@ -53,6 +53,14 @@ const get = async (EntityClass, request, key) => {
   return (await list(EntityClass, request, filter))[0]
 }
 
+const getOrFail = async (EntityClass, request, key) => {
+  const entity = await get(EntityClass, request, key)
+  if (!entity) {
+    throw new Error('Entity not found')
+  }
+  return entity
+}
+
 const cudFactory = method => {
   return async (EntityClass, request, ...parameters) => {
     if (EntityClass[method]) {
@@ -69,6 +77,7 @@ const cudTester = method => {
 module.exports = {
   names,
   get,
+  getOrFail,
   list,
   create: cudFactory('create'),
   creatable: cudTester('create'),

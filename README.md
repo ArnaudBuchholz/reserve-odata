@@ -51,6 +51,8 @@ Depending on the entity definition, there might be **one** or **multiple** field
 * When only one field is composing the key, the key **value** is passed.
 * Otherwise, a **dictionary** mapping each property composing the key to the expected value is passed.
 
+If a [falsy value](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) is returned, the entity is considered not existing.
+
 This method is optional : when not defined, the handler will use `EntityClass.list`
 
 ### `async EntityClass.list (request, filters) : []`
@@ -71,7 +73,7 @@ This method is used for most `READ` operations. The following [ODATA parameters]
 
 ### *(optional)* `async EntityClass.create (request, properties) : object`
 
-Creates a new entity, it must return the created entity.
+Creates a new entity, it **must** return the created entity.
 
 The `properties` parameter is a **dictionary** containing the **deserialized values** indexed by their **class properties** *(rather than ODATA properties)*.
 
@@ -79,9 +81,9 @@ Besides basic type checking done upon deserializing the properties, **no validat
 
 This method is optional : when not defined, the entity set is **not creatable** and any creation attempt will fail.
 
-### `async EntityClass.update (request, entity, updates) : boolean`
+### `async EntityClass.update (request, entity, updates)`
 
-Updates an existing entity, must return `true` to indicate a **successful** update.
+Updates an existing entity.
 
 The `updates` parameter is a dictionary listing the **class properties that are updated** *(rather than ODATA properties)*. Wheter the client call uses `PUT` or `MERGE`, only the **relevant** updates are passed to this method.
 
@@ -91,19 +93,23 @@ Besides basic type checking done upon deserializing the updates, **no validation
 
 This method is optional : when not defined, the entity set is **not updatable** and any update attempt will fail.
 
-### `async EntityClass.delete (request, key) : boolean`
+### `async EntityClass.delete (request, key)`
 
-Deletes an existing entity, must return `true` to indicate a **successful** update.
+Deletes an existing entity.
 
 This method is optional : when not defined, the entity set is **not deletable** and any delete attempt will fail.
 
 ## Attributes
 
-To configure the ODATA service, one must use the [gpf.attributes.Serializable Attribute](https://arnaudbuchholz.github.io/gpf/doc/gpf.attributes.Serializable.html) as well as the following ones.
+To change the way entities are exposed through the ODATA service, several attributes (or [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html)) must be used.
+
+First, the [gpf.attributes.Serializable Attribute](https://arnaudbuchholz.github.io/gpf/doc/gpf.attributes.Serializable.html) will decide which properties are exposed associating their ODATA name and type.
+
+Then, the following attributes are exposed to provide additional information.
 
 ### `reserve-odata/attributes/Key`
 
-Use it to flag the key properties of the entity
+Specify which properties are composing the key of the entity
 
 ### `reserve-odata/attributes/Sortable`
 

@@ -40,7 +40,7 @@ const mapFilterProperties = (filter, EntityClass) => {
 
 const mapOrderByProperties = (orderby, EntityClass) => {
   const namedProperties = getNamedProperties(EntityClass)
-  const sortable = Object.keys(gpf.attributes.get(EntityClass, Key)).concat(Object.keys(gpf.attributes.get(EntityClass, Sortable)))
+  const sortable = Object.keys(gpf.attributes.get(EntityClass, Sortable))
   orderby.forEach(orderItem => {
     const property = namedProperties[orderItem.property]
     orderItem.property = property.member

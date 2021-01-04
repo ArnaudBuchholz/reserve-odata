@@ -212,6 +212,7 @@ describe('read', () => {
       })
 
       describe('errors', () => {
+        fail('RecordSet?$filter=parentId eq 0')
         fail('RecordSet?$filter=id eq')
         fail('RecordSet?$filter=not_a_property eq \'abc\'')
       })
@@ -234,6 +235,7 @@ describe('read', () => {
       })
 
       describe('errors', () => {
+        fail('RecordSet?$orderby=parentId')
         fail('RecordSet?$orderby=not_a_property')
         fail('RecordSet?$orderby=id dec')
       })

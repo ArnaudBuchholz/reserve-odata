@@ -4,7 +4,7 @@ const metadata = require('./metadata')
 const { get, list } = require('./entity')
 const NavigationProperty = require('./attributes/NavigationProperty')
 const toJSON = require('./toJSON')
-const { getNamedProperties, mapFilterProperties } = require('./properties')
+const { mapFilterProperties, mapOrderByProperties } = require('./properties')
 const gpf = require('gpf-js')
 
 function getNavigationProperty (entity, navigationPropertyName) {
@@ -69,15 +69,7 @@ module.exports = async function ({ EntityClass, mapping, parsedUrl, request, res
   if (!singleEntityAccess) {
     const orderby = parsedUrl.parameters.$orderby
     if (orderby) {
-      const namedProperties = getNamedProperties(entities[0]) // Assuming same type for all
-      orderby.forEach(orderItem => {
-        const property = namedProperties[orderItem.property]
-        orderItem.property = property.member
-        if (property.type === gpf.serial.types.string) {
-          orderItem.type = 'string'
-        }
-      })
-      entities = [].concat(entities).sort(gpf.createSortFunction(parsedUrl.parameters.$orderby))
+      entities = [].concat(entities).sort(gpf.createSortFunction(mapOrderByProperties(orderby, entities[0]))) // Assuming same type for all
     }
     if (parsedUrl.parameters.$skip) {
       entities = entities.slice(parsedUrl.parameters.$skip)

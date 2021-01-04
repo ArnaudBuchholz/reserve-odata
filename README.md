@@ -123,6 +123,8 @@ Can be used to define the entity name as well as the entity set name.
 
 Specifies which properties are composing the key of the entity.
 
+**NOTE** : Key attributes are also filterable.
+
 ### `reserve-odata/attributes/Sortable ()`
 
 Can be used to flag a sortable property.

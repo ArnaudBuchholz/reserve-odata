@@ -1,11 +1,10 @@
 'use strict'
 
 const gpf = require('gpf-js')
+const Filterable = require('./Filterable')
 const attribute = gpf.attributes.decorator
 
-class Key extends gpf.attributes.Attribute {
+class Key extends Filterable {
 }
-
-attribute(new gpf.attributes.MemberAttribute())(Key)
 
 module.exports = Key

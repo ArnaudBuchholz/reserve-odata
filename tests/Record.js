@@ -62,6 +62,7 @@ class Record {
 attribute(new gpf.attributes.Serializable())(Record, 'id')
 attribute(new Entity('Record'))(Record)
 attribute(new Key())(Record, 'id')
+attribute(new Sortable())(Record, 'id')
 attribute(new gpf.attributes.Serializable())(Record, 'parentId')
 attribute(new gpf.attributes.Serializable())(Record, 'name')
 attribute(new Filterable())(Record, 'name')

@@ -58,9 +58,9 @@ This method is optional : when not defined, the handler will use `EntityClass.li
 ### `async EntityClass.list (request, filters) : []`
 ### *or* `async EntityClass.list (request) : []`
 
-Retreives entities based on filters, expected result is an object array.
+Retreives all entities or a filtered list, expected result is an object array.
 
-Based on the method [signature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/length), the filters might be either **passed** or **applied internally** after getting all records.
+Based on the method [signature](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/length), the filters might be either **passed** or **applied internally** after getting all entities.
 
 Filters definition is based on the structure [gpf.typedef.filterItem](https://arnaudbuchholz.github.io/gpf/doc/gpf.typedef.html#.filterItem__anchor) and refer to **class properties** *(rather than ODATA properties)*.
 
@@ -103,72 +103,75 @@ This method is optional : when not defined, the entity set is **not deletable** 
 
 To change the way entities are exposed through the ODATA service, several attributes (or [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html)) must be used.
 
-First, the [gpf.attributes.Serializable Attribute](https://arnaudbuchholz.github.io/gpf/doc/gpf.attributes.Serializable.html) will decide which properties are exposed associating their ODATA name and type.
+First, the [gpf.attributes.Serializable Attribute](https://arnaudbuchholz.github.io/gpf/doc/gpf.attributes.Serializable.html) decides which properties are exposed by defining their ODATA name and type.
 
-Then, the following attributes are exposed to provide additional information.
+The types are mapped as detailled below :
 
-### `reserve-odata/attributes/Key`
+| [gpf.serial.types](https://arnaudbuchholz.github.io/gpf/doc/gpf.serial.html#.types__anchor) | [OData type](https://www.odata.org/documentation/odata-version-2-0/overview) |
+|---|---|
+| string | Edm.String |
+| integer | Edm.Int64 |
+| datetime | Edm.DateTime |
 
-Specify which properties are composing the key of the entity
+Then, the following attributes can be used to provide additional information.
 
-### `reserve-odata/attributes/Sortable`
+### `reserve-odata/attributes/Entity (name, [setName])`
 
-Use it to flag the properties that can be sorted
+Can be used to define the entity name as well as the entity set name.
 
-### `reserve-odata/attributes/Filterable`
+### `reserve-odata/attributes/Key ()`
 
-Use it to flag the properties that can be filtered
+Specifies which properties are composing the key of the entity.
 
-### `reserve-odata/attributes/Searchable`
+### `reserve-odata/attributes/Sortable ()`
 
-Use it to flag the properties that can be searched
+Can be used to flag a sortable property.
 
-### `reserve-odata/attributes/EntitySetName`
+### `reserve-odata/attributes/Filterable ()`
 
-TBD
-
-### `reserve-odata/attributes/Creatable`
-
-Class attribute
-TBD option to introduce the static method name
-
-### `reserve-odata/attributes/Deletable`
-
-Class attribute
-TBD option to introduce the instance method name
-
-### `reserve-odata/attributes/Updatable`
-
-Class attribute
-TBD option to introduce the instance method name
+Can be used to flag a filterable property.
 
 ## Supported APIs
 
 ### `GET $metadata`
 
-Returns the XML schema description
+Returns the **XML schema description**.
 
 ### `GET <EntitySet>`
 
-Supports: $filter, $select, $skip, $stop, $expand
+Returns entities.
+
+Supports: `$filter`, `$sort`, `$select`, `$skip`, `$stop`, `$expand`
 
 ### `GET <EntitySet>(<Key values>)`
 
-Supports: $select, $expand
+Returns **one** entity.
+
+Supports: `$select`, `$expand`
 
 ### `GET <EntitySet>(<Key values>)/<navigationProperty>`
 
-Supports: $filter, $select, $skip, $stop, $expand
+Returns **one or multiple** entities.
+
+Supports: `$filter`, `$sort`, `$select`, `$skip`, `$stop`, `$expand`
 
 ### `POST <EntitySet>`
 
-Creation
+Creates a new entity.
 
 ### `PUT <EntitySet>(<Key values>)`
 
-Update
+Updates an entity.
 
 ### `MERGE <EntitySet>(<Key values>)`
 
-Differential update
+Updates an entity using differential update.
 
+## Examples
+
+The code is fully tested, the mocha suite provides examples for each feature :
+
+* [Record](https://github.com/ArnaudBuchholz/reserve-odata/blob/master/tests/Record.js)
+* [Tag](https://github.com/ArnaudBuchholz/reserve-odata/blob/master/tests/Tag.js)
+* [AppSetting](https://github.com/ArnaudBuchholz/reserve-odata/blob/master/tests/AppSetting.js)
+* [Value](https://github.com/ArnaudBuchholz/reserve-odata/blob/master/tests/Value.js)

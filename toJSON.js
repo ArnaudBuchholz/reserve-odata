@@ -15,33 +15,33 @@ function getKeys (entity) {
   return Object.keys(gpf.attributes.get(EntityClass, Key)).map(name => serialProperties[name])
 }
 
-module.exports = function toJSON (entity, namespace, select = []) {
-  let propertiesFoundInSelect = 0
-  const json = gpf.serial.toRaw(entity, (value, { name, type }) => {
-    if (select.includes(name)) {
-      ++propertiesFoundInSelect
+function rawConverter (value, { name, type }) {
+  if (type === gpf.serial.types.datetime) {
+    if (value) {
+      return '/Date(' + value.getTime() + ')/'
     }
-    if (type === gpf.serial.types.datetime) {
-      if (value) {
-        return '/Date(' + value.getTime() + ')/'
-      }
-      return null
-    }
-    return value
-  })
+    return null
+  }
+  return value
+}
 
-  // While waiting for https://github.com/ArnaudBuchholz/gpf-js/issues/332
+function keepSelectedProperties (json, select) {
   if (select.length) {
-    if (propertiesFoundInSelect !== select.length) {
-      throw new Error('Unknown select property')
-    }
+    let propertiesFoundInSelect = 0
     Object.keys(json).forEach(property => {
-      if (!select.includes(property)) {
+      if (select.includes(property)) {
+        ++propertiesFoundInSelect
+      } else {
         delete json[property]
       }
     })
+    if (propertiesFoundInSelect !== select.length) {
+      throw new Error('Unknown select property')
+    }
   }
+}
 
+function addMetadata (entity, namespace, json) {
   const uriKey = getKeys(entity)
     .map(property => {
       return {
@@ -60,7 +60,9 @@ module.exports = function toJSON (entity, namespace, select = []) {
     uri: `${entitySetName}(${uriKey})`,
     type: `${namespace}.${entityName}`
   }
+}
 
+function addNavigationProperties (entity, namespace, json) {
   NavigationProperty.list(entity)
     .forEach(navigationProperty => {
       const name = navigationProperty.name
@@ -71,6 +73,15 @@ module.exports = function toJSON (entity, namespace, select = []) {
         json[name] = toJSON(value, namespace)
       }
     })
+}
 
+function toJSON (entity, namespace, select = []) {
+  const json = gpf.serial.toRaw(entity, rawConverter)
+  // While waiting for https://github.com/ArnaudBuchholz/gpf-js/issues/332
+  keepSelectedProperties(json, select)
+  addMetadata(entity, namespace, json)
+  addNavigationProperties(entity, namespace, json)
   return json
 }
+
+module.exports = toJSON

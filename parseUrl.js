@@ -7,91 +7,75 @@ const toNumber = value => {
   return parseInt(value, 10)
 }
 
-const parseKey = key => {
-  const match = /^(?:'([^']*)'|(\d+)|(.*))$/.exec(key)
-  if (match[3]) {
-    const keys = {}
-    match[3].replace(/([^=]+)=(?:'([^']+)'|([^,]+))(?:,|$)/g, function (_, field, value1, value2) {
-      keys[field] = value1 || toNumber(value2)
-    })
-    return keys
-  }
-  return match[1] || toNumber(match[2])
-}
-
-const toList = value => value.split(',')
-
-function parseFilter (string) {
-  const tokens = []
-  string.replace(/\(|\)|\d+(\.\d*)?|'[^']+'|DateTime'[^']*'|[\w0-9_]+(\/[\w0-9_]+)*/g, token => tokens.push(token))
-
-  const invalidFilter = () => { throw new Error('invalid filter') }
-
-  const operatorMapping = {
-    ge: 'gte',
-    le: 'lte'
-  }
-
-  const valueParser = /^(?:'([^']*)'|DateTime'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)'|(\d+(?:\.\d*)?))$/
-  const valueConverters = [
-    string => string,
-    datetime => new Date(`${datetime}.000Z`).getTime(),
-    toNumber
-  ]
-
-  function parseCondition () {
-    const [property, operator, rawValue] = tokens
-    tokens.splice(0, 3)
-    const parsedValue = valueParser.exec(rawValue)
-    if (!parsedValue) {
-      invalidFilter()
-    }
-    let value
-    valueConverters.every((convert, index) => {
-      const capturedValue = parsedValue[index + 1]
-      if (capturedValue !== undefined) {
-        value = convert(capturedValue)
-        return false
-      }
-      return true
-    })
-    if (['eq', 'ne', 'gt', 'ge', 'lt', 'le'].includes(operator)) {
-      return { [operatorMapping[operator] || operator]: [{ property }, value] }
-    }
-    invalidFilter()
-  }
-
-  function chain (parser, operator) {
-    let filter
-    while (tokens.length) {
-      const condition = parser()
-      if (!filter) {
-        filter = condition
-      } else if (filter[operator]) {
-        filter[operator].push(condition)
-      } else {
-        filter = { [operator]: [filter, condition] }
-      }
-      if (!tokens.length || tokens[0] !== operator) {
-        break
-      }
-      tokens.shift()
-      if (!tokens.length) {
-        invalidFilter()
-      }
-    }
-    return filter
-  }
-
-  const parseAndCond = chain.bind(null, parseCondition, 'and')
-  return chain(parseAndCond, 'or')
-}
-
 const toPositiveNumber = value => {
   if (!value.match(/^\d+$/)) {
     throw new Error('Invalid positive number')
   }
   return toNumber(value)
+}
+
+const toList = value => value.split(',')
+
+const filterTokenizer = /\(|\)|\d+(\.\d*)?|'[^']+'|DateTime'[^']*'|[\w0-9_]+(\/[\w0-9_]+)*/g
+const filterValueParser = /^(?:'([^']*)'|DateTime'(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)'|(\d+(?:\.\d*)?))$/
+const filterOperatorMapping = { ge: 'gte', le: 'lte' }
+const invalidFilter = () => { throw new Error('invalid filter') }
+const filterValueConverters = [
+  string => string,
+  datetime => new Date(`${datetime}.000Z`).getTime(),
+  toNumber
+]
+
+function parseFilterCondition (tokens) {
+  const [property, operator, rawValue] = tokens
+  tokens.splice(0, 3)
+  const parsedValue = filterValueParser.exec(rawValue)
+  if (!parsedValue) {
+    invalidFilter()
+  }
+  let value
+  filterValueConverters.every((convert, index) => {
+    const capturedValue = parsedValue[index + 1]
+    if (capturedValue !== undefined) {
+      value = convert(capturedValue)
+      return false
+    }
+    return true
+  })
+  if (['eq', 'ne', 'gt', 'ge', 'lt', 'le'].includes(operator)) {
+    return { [filterOperatorMapping[operator] || operator]: [{ property }, value] }
+  }
+  invalidFilter()
+}
+
+function parseFilterChain (parser, operator, tokens) {
+  let filter
+  while (tokens.length) {
+    const condition = parser(tokens)
+    if (!filter) {
+      filter = condition
+    } else if (filter[operator]) {
+      filter[operator].push(condition)
+    } else {
+      filter = { [operator]: [filter, condition] }
+    }
+    if (!tokens.length || tokens[0] !== operator) {
+      break
+    }
+    tokens.shift()
+    if (!tokens.length) {
+      invalidFilter()
+    }
+  }
+  return filter
+}
+const parseFilterAndCond = parseFilterChain.bind(null, parseFilterCondition, 'and')
+const parseFilterOrCond = parseFilterChain.bind(null, parseFilterAndCond, 'or')
+
+function parseFilter (string) {
+  const tokens = []
+  string.replace(filterTokenizer, token => tokens.push(token))
+  return parseFilterOrCond(tokens)
 }
 
 const parameterParsers = {
@@ -121,6 +105,18 @@ const parseParameters = parameters => parameters.split('&').reduce((map, paramet
   }
   return map
 }, {})
+
+const parseKey = key => {
+  const match = /^(?:'([^']*)'|(\d+)|(.*))$/.exec(key)
+  if (match[3]) {
+    const keys = {}
+    match[3].replace(/([^=]+)=(?:'([^']+)'|([^,]+))(?:,|$)/g, function (_, field, value1, value2) {
+      keys[field] = value1 || toNumber(value2)
+    })
+    return keys
+  }
+  return match[1] || toNumber(match[2])
+}
 
 module.exports = url => {
   const [, set, key, navigationProperties, rawParameters] = /^((?:\$metadata|[\w0-9_]+))(?:\(([^)]+)\))?((?:\/[\w0-9_]+)+)?(?:\?(.+))?/.exec(url)

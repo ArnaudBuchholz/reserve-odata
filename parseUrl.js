@@ -118,30 +118,49 @@ const parseKey = key => {
   return match[1] || toNumber(match[2])
 }
 
+function metadata ({ key, navigationProperties, parameters, owns$parameter }) {
+  if (key || navigationProperties) {
+    throw new Error('Invalid URL')
+  }
+  if (owns$parameter) {
+    throw new Error('Invalid parameter')
+  }
+  return {
+    metadata: true,
+    set: '',
+    parameters,
+    owns$parameter
+  }
+}
+
+function processOrDelete (parsed, property, process) {
+  const value = parsed[property]
+  if (value !== undefined) {
+    parsed[property] = process(value)
+  } else {
+    delete parsed[property]
+  }
+}
+
+function entity (parsed) {
+  processOrDelete(parsed, 'key', parseKey)
+  processOrDelete(parsed, 'navigationProperties', value => value.split('/').slice(1))
+  return parsed
+}
+
 module.exports = url => {
   const [, set, key, navigationProperties, rawParameters] = /^((?:\$metadata|[\w0-9_]+))(?:\(([^)]+)\))?((?:\/[\w0-9_]+)+)?(?:\?(.+))?/.exec(url)
   const parameters = (rawParameters && parseParameters(rawParameters)) || {}
   const owns$parameter = Object.keys(parameters).some(parameter => parameter.startsWith('$'))
+  const parsed = {
+    set,
+    key,
+    navigationProperties,
+    parameters,
+    owns$parameter
+  }
   if (set === '$metadata') {
-    if (key || navigationProperties) {
-      throw new Error('Invalid URL')
-    }
-    if (owns$parameter) {
-      throw new Error('Invalid parameter')
-    }
-    return {
-      metadata: true,
-      set: '',
-      parameters,
-      owns$parameter
-    }
+    return metadata(parsed)
   }
-  const parsed = { set, parameters, owns$parameter }
-  if (key) {
-    parsed.key = parseKey(key)
-  }
-  if (navigationProperties) {
-    parsed.navigationProperties = navigationProperties.split('/').slice(1)
-  }
-  return parsed
+  return entity(parsed)
 }

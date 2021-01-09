@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "ODATA handler for REserve",
   "main": "index.js",
+  "files": [
+    "attributes/*.js",
+    "*.js"
+  ],
   "scripts": {
     "test": "standard && nyc mocha",
     "lint": "standard --fix",

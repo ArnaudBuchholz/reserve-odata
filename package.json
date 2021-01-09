@@ -1,6 +1,6 @@
 {
   "name": "reserve-odata",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "ODATA handler for REserve",
   "main": "index.js",
   "files": [

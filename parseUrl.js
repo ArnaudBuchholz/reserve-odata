@@ -48,27 +48,37 @@ function parseFilterCondition (tokens) {
   invalidFilter()
 }
 
+function concatFilter (filter, operator, condition) {
+  if (!filter) {
+    return condition
+  }
+  if (filter[operator]) {
+    filter[operator].push(condition)
+    return filter
+  }
+  return { [operator]: [filter, condition] }
+}
+
+function shiftTokenAndCheckIfRemaining (tokens) {
+  tokens.shift()
+  if (!tokens.length) {
+    invalidFilter()
+  }
+}
+
 function parseFilterChain (parser, operator, tokens) {
   let filter
   while (tokens.length) {
     const condition = parser(tokens)
-    if (!filter) {
-      filter = condition
-    } else if (filter[operator]) {
-      filter[operator].push(condition)
-    } else {
-      filter = { [operator]: [filter, condition] }
-    }
+    filter = concatFilter(filter, operator, condition)
     if (!tokens.length || tokens[0] !== operator) {
       break
     }
-    tokens.shift()
-    if (!tokens.length) {
-      invalidFilter()
-    }
+    shiftTokenAndCheckIfRemaining(tokens)
   }
   return filter
 }
+
 const parseFilterAndCond = parseFilterChain.bind(null, parseFilterCondition, 'and')
 const parseFilterOrCond = parseFilterChain.bind(null, parseFilterAndCond, 'or')
 

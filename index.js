@@ -10,6 +10,35 @@ methods.forEach(method => {
   handlers[method] = require(`./${method}`)
 })
 
+function checkMethodUrl (method, parsedUrl) {
+  if (method !== 'GET') {
+    if (parsedUrl.metadata) {
+      throw new Error('Unsupported action')
+    }
+    if (parsedUrl.owns$parameter) {
+      throw new Error('Unsupported parameter')
+    }
+  }
+}
+
+function checkEntityClass (mapping, parsedUrl) {
+  if (!parsedUrl.metadata) {
+    const EntityClass = mapping[$set2dpc][parsedUrl.set]
+    if (!EntityClass) {
+      throw new Error('Unkown entity class')
+    }
+    return EntityClass
+  }
+}
+
+function checkMethodAndUrl (parameters) {
+  const { method } = parameters.request
+  const parsedUrl = parseUrl(parameters.redirect)
+  checkMethodUrl(method, parsedUrl)
+  const EntityClass = checkEntityClass(parameters.mapping, parsedUrl)
+  return { method, parsedUrl, EntityClass }
+}
+
 module.exports = {
   schema: {
     'data-provider-classes': ['function', 'string'],
@@ -39,23 +68,7 @@ module.exports = {
   method: methods,
   async redirect (parameters) {
     try {
-      const parsedUrl = parseUrl(parameters.redirect)
-      const { method } = parameters.request
-      if (method !== 'GET') {
-        if (parsedUrl.metadata) {
-          throw new Error('Unsupported action')
-        }
-        if (parsedUrl.owns$parameter) {
-          throw new Error('Unsupported parameter')
-        }
-      }
-      let EntityClass
-      if (!parsedUrl.metadata) {
-        EntityClass = parameters.mapping[$set2dpc][parsedUrl.set]
-        if (!EntityClass) {
-          throw new Error('Unkown entity class')
-        }
-      }
+      const { method, parsedUrl, EntityClass } = checkMethodAndUrl(parameters)
       return await handlers[method]({ ...parameters, parsedUrl, EntityClass })
     } catch (e) {
       const { response } = parameters

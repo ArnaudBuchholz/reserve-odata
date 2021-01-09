@@ -55,13 +55,17 @@ async function getEntities (request, parsedUrl, EntityClass) {
   }
 }
 
+async function expandNavigationProperty (navigationPropertyName, entities) {
+  const memberName = getNavigationProperty(entities[0], navigationPropertyName).getMemberName() // Assuming same type for all
+  for (const entity of entities) {
+    entity[navigationPropertyName] = await entity[memberName]()
+  }
+}
+
 async function expand (parsedUrl, entities) {
   if (parsedUrl.parameters.$expand) {
     for (const navigationPropertyName of parsedUrl.parameters.$expand) {
-      const memberName = getNavigationProperty(entities[0], navigationPropertyName).getMemberName() // Assuming same type for all
-      for (const entity of entities) {
-        entity[navigationPropertyName] = await entity[memberName]()
-      }
+      await expandNavigationProperty(navigationPropertyName, entities)
     }
   }
 }
